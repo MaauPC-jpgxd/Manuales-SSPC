@@ -74,7 +74,10 @@ export default function DashboardPage() {
       setManuals(data)
     } catch (error) {
       console.error(error)
-      alert('No se pudieron cargar los manuales')
+
+      alert(
+        'No se pudieron cargar los manuales',
+      )
     } finally {
       setLoading(false)
     }
@@ -97,8 +100,22 @@ export default function DashboardPage() {
             'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 100%)',
         }}
       >
-        <Box className="flex items-center justify-between gap-4 flex-wrap">
-          <Box className="flex items-center gap-3">
+        <Box
+          className="
+            flex
+            items-center
+            justify-between
+            gap-4
+            flex-wrap
+          "
+        >
+          <Box
+            className="
+              flex
+              items-center
+              gap-3
+            "
+          >
             <Box
               sx={{
                 width: 54,
@@ -110,7 +127,11 @@ export default function DashboardPage() {
                 justifyContent: 'center',
               }}
             >
-              <SchoolIcon sx={{ color: '#090979' }} />
+              <SchoolIcon
+                sx={{
+                  color: '#090979',
+                }}
+              />
             </Box>
 
             <Box>
@@ -132,18 +153,22 @@ export default function DashboardPage() {
             icon={
               <VerifiedIcon
                 sx={{
-                  fontSize: '16px !important',
+                  fontSize:
+                    '16px !important',
                 }}
               />
             }
             label={`${manuals.length} publicado${
-              manuals.length === 1 ? '' : 's'
+              manuals.length === 1
+                ? ''
+                : 's'
             }`}
             sx={{
               background: '#EAF7EF',
               color: '#157347',
               fontWeight: 800,
-              border: '1px solid #A7E0BC',
+              border:
+                '1px solid #A7E0BC',
             }}
           />
         </Box>
@@ -159,7 +184,8 @@ export default function DashboardPage() {
           sx={{
             height: 280,
             borderRadius: 4,
-            border: '1px dashed #CBD5E1',
+            border:
+              '1px dashed #CBD5E1',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -187,133 +213,201 @@ export default function DashboardPage() {
           </Typography>
         </Paper>
       ) : (
-        <Box className="flex flex-col gap-4">
-          {manuals.map((manual, index) => {
-            const priorityStyle =
-              getPriorityStyles(manual.priority)
+        <Box
+          className="
+            flex
+            flex-col
+            gap-4
+          "
+        >
+          {manuals.map(
+            (
+              manual,
+              index,
+            ) => {
 
-            return (
-              <Paper
-                key={manual.id}
-                elevation={0}
-                sx={{
-                  p: 3,
-                  borderRadius: 4,
-                  border: '1px solid #DCE5F3',
-                  background: '#FFFFFF',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 2,
-                  flexWrap: 'wrap',
-                  boxShadow:
-                    '0 12px 35px rgba(9, 9, 121, 0.06)',
-                }}
-              >
-                <Box className="flex items-center gap-4">
+              const priorityStyle =
+                getPriorityStyles(
+                  manual.priority,
+                )
+
+              return (
+                <Paper
+                  key={manual.id}
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    borderRadius: 4,
+                    border:
+                      '1px solid #DCE5F3',
+                    background:
+                      '#FFFFFF',
+                    display: 'flex',
+                    alignItems:
+                      'center',
+                    justifyContent:
+                      'space-between',
+                    gap: 2,
+                    flexWrap:
+                      'wrap',
+                    boxShadow:
+                      '0 12px 35px rgba(9, 9, 121, 0.06)',
+                  }}
+                >
                   <Box
-                    sx={{
-                      width: 54,
-                      height: 54,
-                      borderRadius: 3,
-                      background: '#EEF3FF',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
+                    className="
+                      flex
+                      items-center
+                      gap-4
+                    "
                   >
-                    <DescriptionIcon
+                    <Box
                       sx={{
-                        color: '#090979',
+                        width: 54,
+                        height: 54,
+                        borderRadius: 3,
+                        background:
+                          '#EEF3FF',
+                        display:
+                          'flex',
+                        alignItems:
+                          'center',
+                        justifyContent:
+                          'center',
                       }}
-                    />
-                  </Box>
-
-                  <Box>
-                    <Typography
-                      fontWeight="900"
-                      color="#090979"
                     >
-                      Manual {index + 1}: {manual.title}
-                    </Typography>
-
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                    >
-                      Documento aprobado para consulta
-                    </Typography>
-
-                    <Box className="flex gap-2 flex-wrap mt-2">
-                      <Chip
-                        icon={
-                          <VerifiedIcon
-                            sx={{
-                              fontSize: '16px !important',
-                            }}
-                          />
-                        }
-                        label="APROBADO"
-                        size="small"
+                      <DescriptionIcon
                         sx={{
-                          background: '#EAF7EF',
-                          color: '#157347',
-                          fontWeight: 800,
-                        }}
-                      />
-
-                      <Chip
-                        label={priorityStyle.label}
-                        size="small"
-                        sx={{
-                          background:
-                            priorityStyle.background,
-                          color: priorityStyle.color,
-                          fontWeight: 800,
+                          color:
+                            '#090979',
                         }}
                       />
                     </Box>
+
+                    <Box>
+                      <Typography
+                        fontWeight="900"
+                        color="#090979"
+                      >
+                        Manual {index + 1}:{' '}
+                        {manual.title}
+                      </Typography>
+
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                      >
+                        Documento aprobado para consulta
+                      </Typography>
+
+                      <Box
+                        className="
+                          flex
+                          gap-2
+                          flex-wrap
+                          mt-2
+                        "
+                      >
+                        <Chip
+                          icon={
+                            <VerifiedIcon
+                              sx={{
+                                fontSize:
+                                  '16px !important',
+                              }}
+                            />
+                          }
+                          label="APROBADO"
+                          size="small"
+                          sx={{
+                            background:
+                              '#EAF7EF',
+                            color:
+                              '#157347',
+                            fontWeight:
+                              800,
+                          }}
+                        />
+
+                        <Chip
+                          label={
+                            priorityStyle.label
+                          }
+                          size="small"
+                          sx={{
+                            background:
+                              priorityStyle.background,
+                            color:
+                              priorityStyle.color,
+                            fontWeight:
+                              800,
+                          }}
+                        />
+                      </Box>
+                    </Box>
                   </Box>
-                </Box>
 
-                <Box className="flex gap-2 flex-wrap">
-                  <Button
-                    variant="outlined"
-                    startIcon={<VisibilityIcon />}
-                    onClick={() =>
-                      setSelectedManual(manual)
-                    }
-                    sx={{
-                      borderRadius: 3,
-                      textTransform: 'none',
-                      borderColor: '#090979',
-                      color: '#090979',
-                      fontWeight: 800,
-                    }}
+                  <Box
+                    className="
+                      flex
+                      gap-2
+                      flex-wrap
+                    "
                   >
-                    Ver
-                  </Button>
+                    <Button
+                      variant="outlined"
+                      startIcon={
+                        <VisibilityIcon />
+                      }
+                      onClick={() =>
+                        setSelectedManual(
+                          manual,
+                        )
+                      }
+                      sx={{
+                        borderRadius: 3,
+                        textTransform:
+                          'none',
+                        borderColor:
+                          '#090979',
+                        color:
+                          '#090979',
+                        fontWeight:
+                          800,
+                      }}
+                    >
+                      Ver
+                    </Button>
 
-                  <Button
-                    variant="outlined"
-                    startIcon={<DownloadIcon />}
-                    href={manual.fileUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{
-                      borderRadius: 3,
-                      textTransform: 'none',
-                      borderColor: '#090979',
-                      color: '#090979',
-                      fontWeight: 800,
-                    }}
-                  >
-                    Descargar
-                  </Button>
-                </Box>
-              </Paper>
-            )
-          })}
+                    <Button
+                      variant="outlined"
+                      startIcon={
+                        <DownloadIcon />
+                      }
+                      href={
+                        manual.fileUrl
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={{
+                        borderRadius: 3,
+                        textTransform:
+                          'none',
+                        borderColor:
+                          '#090979',
+                        color:
+                          '#090979',
+                        fontWeight:
+                          800,
+                      }}
+                    >
+                      Descargar
+                    </Button>
+                  </Box>
+                </Paper>
+              )
+            },
+          )}
         </Box>
       )}
 
@@ -330,11 +424,15 @@ export default function DashboardPage() {
               sx={{
                 px: 3,
                 py: 2,
-                borderBottom: '1px solid #DCE5F3',
-                background: '#FFFFFF',
+                borderBottom:
+                  '1px solid #DCE5F3',
+                background:
+                  '#FFFFFF',
                 display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
+                justifyContent:
+                  'space-between',
+                alignItems:
+                  'center',
                 gap: 2,
                 flexWrap: 'wrap',
               }}
@@ -345,17 +443,29 @@ export default function DashboardPage() {
                   fontWeight="900"
                   color="#090979"
                 >
-                  {selectedManual.title}
+                  {
+                    selectedManual.title
+                  }
                 </Typography>
 
-                <Box className="flex gap-2 flex-wrap mt-1">
+                <Box
+                  className="
+                    flex
+                    gap-2
+                    flex-wrap
+                    mt-1
+                  "
+                >
                   <Chip
                     label="APROBADO"
                     size="small"
                     sx={{
-                      background: '#EAF7EF',
-                      color: '#157347',
-                      fontWeight: 800,
+                      background:
+                        '#EAF7EF',
+                      color:
+                        '#157347',
+                      fontWeight:
+                        800,
                     }}
                   />
 
@@ -375,25 +485,40 @@ export default function DashboardPage() {
                         getPriorityStyles(
                           selectedManual.priority,
                         ).color,
-                      fontWeight: 800,
+                      fontWeight:
+                        800,
                     }}
                   />
                 </Box>
               </Box>
 
-              <Box className="flex items-center gap-2">
+              <Box
+                className="
+                  flex
+                  items-center
+                  gap-2
+                "
+              >
                 <Button
                   variant="outlined"
-                  startIcon={<DownloadIcon />}
-                  href={selectedManual.fileUrl}
+                  startIcon={
+                    <DownloadIcon />
+                  }
+                  href={
+                    selectedManual.fileUrl
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                   sx={{
                     borderRadius: 3,
-                    textTransform: 'none',
-                    borderColor: '#090979',
-                    color: '#090979',
-                    fontWeight: 800,
+                    textTransform:
+                      'none',
+                    borderColor:
+                      '#090979',
+                    color:
+                      '#090979',
+                    fontWeight:
+                      800,
                   }}
                 >
                   Descargar
@@ -401,7 +526,9 @@ export default function DashboardPage() {
 
                 <IconButton
                   onClick={() =>
-                    setSelectedManual(null)
+                    setSelectedManual(
+                      null,
+                    )
                   }
                 >
                   <CloseIcon />
@@ -412,13 +539,18 @@ export default function DashboardPage() {
             <DialogContent
               sx={{
                 p: 0,
-                background: '#EEF3FF',
+                background:
+                  '#EEF3FF',
                 height: '100%',
               }}
             >
               <iframe
-                src={selectedManual.fileUrl}
-                title={selectedManual.title}
+                src={
+                  selectedManual.fileUrl
+                }
+                title={
+                  selectedManual.title
+                }
                 width="100%"
                 height="100%"
                 style={{
@@ -432,3 +564,4 @@ export default function DashboardPage() {
       </Dialog>
     </Box>
   )
+}
