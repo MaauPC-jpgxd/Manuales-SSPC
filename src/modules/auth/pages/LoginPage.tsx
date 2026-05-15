@@ -284,6 +284,16 @@ export default function LoginPage() {
             >
               {isSubmitting ? 'Validando acceso...' : 'Iniciar sesión'}
             </Button>
+            <Button
+              onClick={() => navigate('/recuperar-password')}
+              sx={{
+                textTransform: 'none',
+                color: '#090979',
+                fontWeight: 800,
+              }}
+            >
+              ¿Olvidaste tu contraseña?
+            </Button>
           </form>
 
           <Typography

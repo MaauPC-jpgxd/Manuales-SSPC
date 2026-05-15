@@ -6,7 +6,7 @@ import UsersPage from '@/modules/users/pages/UsersPage'
 import UploadManualPage from '@/modules/manuals/pages/UploadManualPage'
 import ApprovalsPage from '@/modules/approvals/pages/ApprovalsPage'
 import ChangePasswordPage from '@/modules/auth/pages/ChangePasswordPage'
-
+import ForgotPasswordPage from '@/modules/auth/pages/ForgotPasswordPage'
 import DashboardLayout from '@/layouts/DashboardLayout/DashboardLayout'
 import ProtectedRoute from '@/components/ProtectedRoute'
 
@@ -15,6 +15,10 @@ export const router = createBrowserRouter([
     path: '/',
     element: <LoginPage />,
   },
+  {
+  path: '/recuperar-password',
+  element: <ForgotPasswordPage />,
+},
   {
     element: (
       <ProtectedRoute>

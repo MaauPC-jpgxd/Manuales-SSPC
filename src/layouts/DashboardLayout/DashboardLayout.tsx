@@ -398,16 +398,19 @@ export default function DashboardLayout() {
 
       {/* CONTENIDO */}
 
-      <Box
-        sx={{
-          p: {
-            xs: 2,
-            md: 4,
-          },
-        }}
-      >
-        <Outlet />
+     <Box
+  sx={{
+    p: {
+      xs: 2,
+      md: 4,
+    },
+    pb: 8,
+    minHeight: 'calc(100vh - 88px)',
+    overflow: 'visible',
+  }}
+>
+  <Outlet />
+</Box>
       </Box>
-    </Box>
   )
 }
