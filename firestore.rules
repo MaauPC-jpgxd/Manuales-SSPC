@@ -1,0 +1,55 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isRoot() {
+      return request.auth.token.role == "ROOT";
+    }
+
+    function isAdmin() {
+      return request.auth.token.role == "ADMIN";
+    }
+
+    function isLector() {
+      return request.auth.token.role == "LECTOR";
+    }
+
+    match /users/{userId} {
+
+      allow read:
+      if isAuthenticated();
+
+      allow create, update, delete:
+      if isRoot();
+    }
+
+    match /manuals/{manualId} {
+
+      allow read:
+      if isAuthenticated();
+
+      allow create:
+      if isAdmin() || isRoot();
+
+      allow update:
+      if isRoot();
+
+      allow delete:
+      if isRoot();
+    }
+
+    match /audit_logs/{logId} {
+
+      allow read:
+      if isRoot();
+
+      allow create:
+      if isAuthenticated();
+    }
+  }
+}
