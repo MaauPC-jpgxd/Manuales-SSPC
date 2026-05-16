@@ -1,5 +1,5 @@
 import { useState } from 'react'
-
+import { useNavigate } from 'react-router-dom'
 import {
   Alert,
   Box,
@@ -33,6 +33,7 @@ type ManualPriority =
   'BAJA'
 
 export default function UploadManualPage() {
+  const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
 
   const [title, setTitle] = useState('')
@@ -83,6 +84,9 @@ export default function UploadManualPage() {
       setFile(null)
 
       alert('Manual enviado a revisión')
+            navigate('/dashboard', {
+        replace: true,
+      })
     } catch (error) {
       console.error(error)
 

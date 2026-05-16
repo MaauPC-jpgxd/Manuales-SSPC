@@ -74,7 +74,9 @@ export default function LoginPage() {
         role: response.profile.role,
       })
 
-      navigate('/dashboard')
+          navigate('/dashboard', {
+      replace: true,
+    })
     } catch (error) {
       console.error(error)
 
