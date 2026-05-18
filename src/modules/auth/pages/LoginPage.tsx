@@ -246,6 +246,7 @@ export default function LoginPage() {
               }}
             />
 
+                  <Box sx={{ mb: 2 }}> {/* mb: 2 agrega espacio abajo */}
             <TextField
               fullWidth
               type="password"
@@ -261,6 +262,7 @@ export default function LoginPage() {
                 ),
               }}
             />
+          </Box>
 
             <Button
               type="submit"
