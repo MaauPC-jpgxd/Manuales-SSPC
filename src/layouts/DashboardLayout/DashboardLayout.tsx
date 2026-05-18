@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Outlet,
   useLocation,
@@ -51,6 +51,46 @@ export default function DashboardLayout() {
   const logout = useAuthStore(
     (state) => state.logout,
   )
+  useEffect(() => {
+  let timeoutId: ReturnType<typeof setTimeout>
+
+  const logoutByInactivity = () => {
+    logout()
+    navigate('/')
+    alert('Sesión cerrada por inactividad.')
+  }
+
+  const resetTimer = () => {
+    clearTimeout(timeoutId)
+
+    timeoutId = setTimeout(
+      logoutByInactivity,
+      15 * 60 * 1000,
+    )
+  }
+
+  const events = [
+    'mousemove',
+    'keydown',
+    'click',
+    'scroll',
+    'touchstart',
+  ]
+
+  events.forEach((event) => {
+    window.addEventListener(event, resetTimer)
+  })
+
+  resetTimer()
+
+  return () => {
+    clearTimeout(timeoutId)
+
+    events.forEach((event) => {
+      window.removeEventListener(event, resetTimer)
+    })
+  }
+}, [logout, navigate])
 
   const menuItems = useMemo(() => {
     if (!user) return []
