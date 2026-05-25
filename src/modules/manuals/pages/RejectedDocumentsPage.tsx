@@ -22,7 +22,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import RestoreIcon from '@mui/icons-material/Restore'
 
 import { UserRole } from '@/types/roles'
-import { ManualStatus } from '@/types/manuals'
+//import { ManualStatus } from '@/types/manuals'
 import { useAuthStore } from '@/modules/auth/store/auth.store'
 
 import type {

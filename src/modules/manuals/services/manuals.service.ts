@@ -34,8 +34,7 @@ interface CreateManualDTO {
   category:
     'MANUAL' |
     'INVENTARIO' |
-    'TICKETS'
-
+    'TICKETS'| 'FORMATO'
   startDate?: string
 
   endDate?: string

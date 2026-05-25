@@ -6,7 +6,8 @@ export type ManualPriority =
 export type DocumentCategory =
   'MANUAL' |
   'INVENTARIO' |
-  'TICKETS'
+  'TICKETS' |
+  'FORMATO'
 
 export interface Manual {
   id: string

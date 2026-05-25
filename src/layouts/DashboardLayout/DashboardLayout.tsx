@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import {
+  type ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
+
 import {
   Outlet,
   useLocation,
@@ -24,11 +30,12 @@ import {
 
 import MenuIcon from '@mui/icons-material/Menu'
 import LogoutIcon from '@mui/icons-material/Logout'
-import DescriptionIcon from '@mui/icons-material/Description'
+import DashboardIcon from '@mui/icons-material/Dashboard'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import GroupIcon from '@mui/icons-material/Group'
 import FactCheckIcon from '@mui/icons-material/FactCheck'
 import PasswordIcon from '@mui/icons-material/Password'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 
 import logo from '@/assets/logo/Recurso 9-100.jpg'
 
@@ -38,67 +45,74 @@ import { UserRole } from '@/types/roles'
 
 const drawerWidth = 300
 
+interface MenuItem {
+  label: string
+  icon: ReactNode
+  path: string
+  roles: UserRole[]
+  realRootOnly?: boolean
+}
+
 export default function DashboardLayout() {
   const navigate = useNavigate()
   const location = useLocation()
 
   const [open, setOpen] = useState(false)
 
-  const user = useAuthStore(
-    (state) => state.user,
-  )
+  const user = useAuthStore((state) => state.user)
+  const previewRole = useAuthStore((state) => state.previewRole)
+  const logout = useAuthStore((state) => state.logout)
 
-  const logout = useAuthStore(
-    (state) => state.logout,
-  )
+  const effectiveRole = previewRole ?? user?.role ?? null
+
   useEffect(() => {
-  let timeoutId: ReturnType<typeof setTimeout>
+    let timeoutId: ReturnType<typeof setTimeout>
 
-  const logoutByInactivity = () => {
-    logout()
-    navigate('/')
-    alert('Sesión cerrada por inactividad.')
-  }
+    const logoutByInactivity = () => {
+      logout()
+      navigate('/')
+      alert('Sesión cerrada por inactividad.')
+    }
 
-  const resetTimer = () => {
-    clearTimeout(timeoutId)
+    const resetTimer = () => {
+      clearTimeout(timeoutId)
 
-    timeoutId = setTimeout(
-      logoutByInactivity,
-      15 * 60 * 1000,
-    )
-  }
+      timeoutId = setTimeout(
+        logoutByInactivity,
+        15 * 60 * 1000,
+      )
+    }
 
-  const events = [
-    'mousemove',
-    'keydown',
-    'click',
-    'scroll',
-    'touchstart',
-  ]
-
-  events.forEach((event) => {
-    window.addEventListener(event, resetTimer)
-  })
-
-  resetTimer()
-
-  return () => {
-    clearTimeout(timeoutId)
+    const events = [
+      'mousemove',
+      'keydown',
+      'click',
+      'scroll',
+      'touchstart',
+    ]
 
     events.forEach((event) => {
-      window.removeEventListener(event, resetTimer)
+      window.addEventListener(event, resetTimer)
     })
-  }
-}, [logout, navigate])
+
+    resetTimer()
+
+    return () => {
+      clearTimeout(timeoutId)
+
+      events.forEach((event) => {
+        window.removeEventListener(event, resetTimer)
+      })
+    }
+  }, [logout, navigate])
 
   const menuItems = useMemo(() => {
     if (!user) return []
 
-    return [
+    const items: MenuItem[] = [
       {
         label: 'Dashboard',
-        icon: <DescriptionIcon />,
+        icon: <DashboardIcon />,
         path: '/dashboard',
         roles: [
           UserRole.ROOT,
@@ -106,9 +120,8 @@ export default function DashboardLayout() {
           UserRole.LECTOR,
         ],
       },
-
       {
-        label: 'Subir Documento',
+        label: 'Subir documentos',
         icon: <UploadFileIcon />,
         path: '/subir',
         roles: [
@@ -116,7 +129,6 @@ export default function DashboardLayout() {
           UserRole.ADMIN,
         ],
       },
-
       {
         label: 'Revisión',
         icon: <FactCheckIcon />,
@@ -125,7 +137,6 @@ export default function DashboardLayout() {
           UserRole.ROOT,
         ],
       },
-
       {
         label: 'Usuarios',
         icon: <GroupIcon />,
@@ -134,7 +145,15 @@ export default function DashboardLayout() {
           UserRole.ROOT,
         ],
       },
-
+        {
+        label: 'Ver como',
+        icon: <VisibilityIcon />,
+        path: '/ver-como',
+        roles: [
+          UserRole.ROOT,
+        ],
+        realRootOnly: true,
+      },
       {
         label: 'Cambiar contraseña',
         icon: <PasswordIcon />,
@@ -145,15 +164,21 @@ export default function DashboardLayout() {
           UserRole.LECTOR,
         ],
       },
-    ].filter(
-      (item) =>
-        item.roles.includes(user.role),
-    )
-  }, [user])
+    
+    ]
 
-  const handleNavigate = (
-    path: string,
-  ) => {
+    return items.filter((item) => {
+      if (!effectiveRole) return false
+
+      if (item.realRootOnly) {
+        return user.role === UserRole.ROOT
+      }
+
+      return item.roles.includes(effectiveRole)
+    })
+  }, [user, effectiveRole])
+
+  const handleNavigate = (path: string) => {
     navigate(path)
     setOpen(false)
   }
@@ -171,15 +196,12 @@ export default function DashboardLayout() {
           'linear-gradient(180deg, #F5F7FB 0%, #EDF2FA 100%)',
       }}
     >
-      {/* TOPBAR */}
-
       <AppBar
         position="sticky"
         elevation={0}
         sx={{
           background: '#FFFFFF',
-          borderBottom:
-            '1px solid #DCE5F3',
+          borderBottom: '1px solid #DCE5F3',
           color: '#090979',
         }}
       >
@@ -192,17 +214,9 @@ export default function DashboardLayout() {
             },
           }}
         >
-          <Box
-            className="
-              flex
-              items-center
-              gap-4
-            "
-          >
+          <Box className="flex items-center gap-4">
             <IconButton
-              onClick={() =>
-                setOpen(true)
-              }
+              onClick={() => setOpen(true)}
               sx={{
                 color: '#090979',
               }}
@@ -223,14 +237,7 @@ export default function DashboardLayout() {
 
           <Box sx={{ flexGrow: 1 }} />
 
-          <Box
-            className="
-              hidden
-              md:flex
-              items-center
-              gap-4
-            "
-          >
+          <Box className="hidden md:flex items-center gap-4">
             <Box
               sx={{
                 textAlign: 'right',
@@ -248,7 +255,9 @@ export default function DashboardLayout() {
                 fontSize={12}
                 color="#64748B"
               >
-                {user?.role}
+                {previewRole
+                  ? `Vista: ${previewRole}`
+                  : user?.role}
               </Typography>
             </Box>
 
@@ -277,7 +286,6 @@ export default function DashboardLayout() {
                 fontWeight: 700,
                 boxShadow:
                   '0 10px 25px rgba(9,9,121,0.18)',
-
                 '&:hover': {
                   background:
                     'linear-gradient(135deg, #070760 0%, #1E40AF 100%)',
@@ -290,14 +298,10 @@ export default function DashboardLayout() {
         </Toolbar>
       </AppBar>
 
-      {/* SIDEBAR */}
-
       <Drawer
         anchor="left"
         open={open}
-        onClose={() =>
-          setOpen(false)
-        }
+        onClose={() => setOpen(false)}
       >
         <Box
           sx={{
@@ -307,11 +311,7 @@ export default function DashboardLayout() {
               'linear-gradient(180deg, #FFFFFF 0%, #F8FAFF 100%)',
           }}
         >
-          <Box
-            sx={{
-              p: 3,
-            }}
-          >
+          <Box sx={{ p: 3 }}>
             <Box
               component="img"
               src={logo}
@@ -327,11 +327,7 @@ export default function DashboardLayout() {
             <Divider />
 
             <Box
-              className="
-                flex
-                items-center
-                gap-3
-              "
+              className="flex items-center gap-3"
               sx={{
                 mt: 3,
               }}
@@ -356,12 +352,15 @@ export default function DashboardLayout() {
                 </Typography>
 
                 <Chip
-                  label={user?.role}
+                  label={
+                    previewRole
+                      ? `Vista: ${previewRole}`
+                      : user?.role
+                  }
                   size="small"
                   sx={{
                     mt: 0.5,
-                    background:
-                      '#EEF3FF',
+                    background: '#EEF3FF',
                     color: '#090979',
                     fontWeight: 700,
                   }}
@@ -378,36 +377,28 @@ export default function DashboardLayout() {
           >
             {menuItems.map((item) => {
               const active =
-                location.pathname ===
-                item.path
+                location.pathname === item.path
 
               return (
                 <ListItemButton
                   key={item.path}
                   onClick={() =>
-                    handleNavigate(
-                      item.path,
-                    )
+                    handleNavigate(item.path)
                   }
                   sx={{
                     mb: 1,
                     borderRadius: 3,
                     py: 1.4,
-
-                    background:
-                      active
-                        ? 'linear-gradient(135deg, #090979 0%, #1D4ED8 100%)'
-                        : 'transparent',
-
+                    background: active
+                      ? 'linear-gradient(135deg, #090979 0%, #1D4ED8 100%)'
+                      : 'transparent',
                     color: active
                       ? '#FFFFFF'
                       : '#090979',
-
                     '&:hover': {
-                      background:
-                        active
-                          ? 'linear-gradient(135deg, #090979 0%, #1D4ED8 100%)'
-                          : '#EEF3FF',
+                      background: active
+                        ? 'linear-gradient(135deg, #090979 0%, #1D4ED8 100%)'
+                        : '#EEF3FF',
                     },
                   }}
                 >
@@ -422,9 +413,7 @@ export default function DashboardLayout() {
                   </ListItemIcon>
 
                   <ListItemText
-                    primary={
-                      item.label
-                    }
+                    primary={item.label}
                     primaryTypographyProps={{
                       fontWeight: 700,
                     }}
@@ -436,21 +425,19 @@ export default function DashboardLayout() {
         </Box>
       </Drawer>
 
-      {/* CONTENIDO */}
-
-     <Box
-  sx={{
-    p: {
-      xs: 2,
-      md: 4,
-    },
-    pb: 8,
-    minHeight: 'calc(100vh - 88px)',
-    overflow: 'visible',
-  }}
->
-  <Outlet />
-</Box>
+      <Box
+        sx={{
+          p: {
+            xs: 2,
+            md: 4,
+          },
+          pb: 8,
+          minHeight: 'calc(100vh - 88px)',
+          overflow: 'visible',
+        }}
+      >
+        <Outlet />
       </Box>
+    </Box>
   )
 }

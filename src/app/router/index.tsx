@@ -18,6 +18,9 @@ import UploadHubPage from '@/modules/uploads/pages/UploadHubPage'
 import UploadInventoryPage from '@/modules/manuals/pages/UploadInventoryPage'
 import UploadTicketsPage from '@/modules/manuals/pages/UploadTicketsPage'
 import UploadVideoPage from '@/modules/videos/pages/UploadVideoPage'
+import RolePreviewPage from '@/modules/dev/pages/RolePreviewPage'
+import UploadFormatPage from '@/modules/manuals/pages/UploadFormatPage'
+import FormatPage from '@/modules/manuals/pages/FormatPage'
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -90,6 +93,22 @@ export const router = createBrowserRouter([
       path: '/subir/videos',
       element: <UploadVideoPage />,
     },
+    {
+    path: '/ver-como',
+    element: <RolePreviewPage />,
+  },
+  {
+      path: '/subir/formato',
+      element: <UploadFormatPage />,
+    },
+    {
+  path: '/formato',
+  element: <FormatPage />,
+},
+{
+  path: '/subir/formato',
+  element: <UploadFormatPage />,
+},
     ],
   },
 ])

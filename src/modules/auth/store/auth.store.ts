@@ -1,11 +1,13 @@
-import { create }
-from 'zustand'
+import { create } from 'zustand'
 
 import {
   persist,
 } from 'zustand/middleware'
 
-import type { UserRole } from '@/types/roles'
+import type {
+  UserRole,
+} from '@/types/roles'
+
 interface UserProfile {
   uid: string
   name: string
@@ -14,13 +16,20 @@ interface UserProfile {
 }
 
 interface AuthStore {
-
   user:
     UserProfile | null
 
+  previewRole:
+    UserRole | null
+
   setUser:
     (
-      user: UserProfile
+      user: UserProfile,
+    ) => void
+
+  setPreviewRole:
+    (
+      role: UserRole | null,
     ) => void
 
   logout:
@@ -36,18 +45,30 @@ create<AuthStore>()(
 
       user: null,
 
+      previewRole: null,
+
       setUser: (user) =>
-        set({ user }),
+        set({
+          user,
+        }),
+
+      setPreviewRole: (role) =>
+        set({
+          previewRole: role,
+        }),
 
       logout: () =>
-        set({ user: null }),
+        set({
+          user: null,
+          previewRole: null,
+        }),
 
     }),
 
     {
       name: 'auth-storage',
-    }
+    },
 
-  )
+  ),
 
 )

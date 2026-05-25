@@ -1,11 +1,12 @@
+import { type ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 
 import {
   Box,
+  Chip,
   Paper,
   Typography,
-  Chip,
 } from '@mui/material'
 
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
@@ -13,20 +14,33 @@ import DescriptionIcon from '@mui/icons-material/Description'
 import InventoryIcon from '@mui/icons-material/Inventory'
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber'
 import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled'
+import ArticleIcon from '@mui/icons-material/Article'
 
-const uploadCards = [
+import { useAuthStore } from '@/modules/auth/store/auth.store'
+import { UserRole } from '@/types/roles'
+
+interface UploadCard {
+  title: string
+  description: string
+  icon: ReactNode
+  path: string
+  tag: string
+  rootOnly?: boolean
+}
+
+const uploadCards: UploadCard[] = [
   {
     title: 'Subir manual',
     description:
       'Carga manuales corporativos en PDF para enviarlos a revisión.',
     icon: <DescriptionIcon sx={{ fontSize: 42 }} />,
-    path: '/subir-manual',
+    path: '/subir/manual',
     tag: 'Requiere revisión',
   },
   {
     title: 'Subir inventario',
     description:
-      'Carga inventarios en PDF indicando el periodo al que pertenecen.',
+      'Carga inventarios diarios en PDF indicando la fecha correspondiente.',
     icon: <InventoryIcon sx={{ fontSize: 42 }} />,
     path: '/subir/inventario',
     tag: 'Publicación directa',
@@ -42,15 +56,36 @@ const uploadCards = [
   {
     title: 'Subir video tutorial',
     description:
-      'Agrega un tutorial mediante un enlace privado o no listado de YouTube.',
+      'Agrega un tutorial mediante un enlace no listado de YouTube.',
     icon: <PlayCircleFilledIcon sx={{ fontSize: 42 }} />,
     path: '/subir/videos',
-    tag: 'YouTube',
+    tag: 'YouTube no listado',
+  },
+  {
+    title: 'Subir formato',
+    description:
+      'Actualiza el formato autorizado que todos los usuarios pueden consultar.',
+    icon: <ArticleIcon sx={{ fontSize: 42 }} />,
+    path: '/subir/formato',
+    tag: 'Solo ROOT',
+    rootOnly: true,
   },
 ]
 
 export default function UploadHubPage() {
   const navigate = useNavigate()
+
+  const user = useAuthStore((state) => state.user)
+  const previewRole = useAuthStore((state) => state.previewRole)
+
+  const effectiveRole =
+    previewRole ?? user?.role
+
+  const visibleCards = uploadCards.filter((card) =>
+    card.rootOnly
+      ? effectiveRole === UserRole.ROOT
+      : true,
+  )
 
   return (
     <Box>
@@ -98,7 +133,11 @@ export default function UploadHubPage() {
           </Box>
 
           <Chip
-            label="ROOT / ADMIN"
+            label={
+              effectiveRole === UserRole.ROOT
+                ? 'ROOT'
+                : 'ADMIN'
+            }
             sx={{
               background: '#EEF3FF',
               color: '#090979',
@@ -120,7 +159,7 @@ export default function UploadHubPage() {
           gap: 3,
         }}
       >
-        {uploadCards.map((card, index) => (
+        {visibleCards.map((card, index) => (
           <motion.div
             key={card.title}
             initial={{
@@ -151,9 +190,12 @@ export default function UploadHubPage() {
                 minHeight: 250,
                 borderRadius: 5,
                 cursor: 'pointer',
-                border: '1px solid #DCE5F3',
-                background:
-                  'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 100%)',
+                border: card.rootOnly
+                  ? '1px solid #A7E0BC'
+                  : '1px solid #DCE5F3',
+                background: card.rootOnly
+                  ? 'linear-gradient(135deg, #FFFFFF 0%, #F1FFF6 100%)'
+                  : 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 100%)',
                 boxShadow:
                   '0 18px 45px rgba(9, 9, 121, 0.08)',
                 transition: 'all 0.25s ease',
@@ -161,7 +203,9 @@ export default function UploadHubPage() {
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 '&:hover': {
-                  borderColor: '#090979',
+                  borderColor: card.rootOnly
+                    ? '#157347'
+                    : '#090979',
                   boxShadow:
                     '0 24px 60px rgba(9, 9, 121, 0.16)',
                 },
@@ -173,8 +217,12 @@ export default function UploadHubPage() {
                     width: 70,
                     height: 70,
                     borderRadius: 4,
-                    background: '#EEF3FF',
-                    color: '#090979',
+                    background: card.rootOnly
+                      ? '#EAF7EF'
+                      : '#EEF3FF',
+                    color: card.rootOnly
+                      ? '#157347'
+                      : '#090979',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -187,15 +235,12 @@ export default function UploadHubPage() {
                 <Typography
                   variant="h6"
                   fontWeight="900"
-                  color="#090979"
+                  color={card.rootOnly ? '#157347' : '#090979'}
                 >
                   {card.title}
                 </Typography>
 
-                <Typography
-                  color="text.secondary"
-                  mt={1}
-                >
+                <Typography color="text.secondary" mt={1}>
                   {card.description}
                 </Typography>
               </Box>
@@ -206,8 +251,12 @@ export default function UploadHubPage() {
                 sx={{
                   mt: 3,
                   width: 'fit-content',
-                  background: '#EEF3FF',
-                  color: '#090979',
+                  background: card.rootOnly
+                    ? '#EAF7EF'
+                    : '#EEF3FF',
+                  color: card.rootOnly
+                    ? '#157347'
+                    : '#090979',
                   fontWeight: 800,
                 }}
               />
