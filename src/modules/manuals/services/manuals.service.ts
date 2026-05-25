@@ -19,16 +19,35 @@ import type {
 import type {
   ManualPriority,
 } from '../types/manual.types'
+import {
+  deleteDoc,
+} from 'firebase/firestore'
 
 interface CreateManualDTO {
   title: string
-priority: 'ALTA' | 'MEDIA' | 'BAJA'
+
+  priority:
+    'ALTA' |
+    'MEDIA' |
+    'BAJA'
+
+  category:
+    'MANUAL' |
+    'INVENTARIO' |
+    'TICKETS'
+
+  startDate?: string
+
+  endDate?: string
+
   fileUrl: string
+
   publicId: string
+
   uploadedBy: string
+
   uploadedByName: string
 }
-
 const normalizeTitle = (title: string) =>
   title
     .trim()
@@ -40,18 +59,55 @@ const normalizeTitle = (title: string) =>
 export const createManualForReview = async (
   data: CreateManualDTO,
 ) => {
-  await addDoc(collection(db, 'manuals'), {
-    title: data.title.trim(),
-    normalizedTitle: normalizeTitle(data.title),
-    priority: data.priority,
-    fileUrl: data.fileUrl,
-    publicId: data.publicId,
-    uploadedBy: data.uploadedBy,
-    uploadedByName: data.uploadedByName,
-    status: ManualStatus.PENDING,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  })
+
+  const shouldGoToReview =
+    data.category === 'MANUAL'
+
+  await addDoc(
+    collection(db, 'manuals'),
+    {
+      title:
+        data.title.trim(),
+
+      normalizedTitle:
+        normalizeTitle(data.title),
+
+      priority:
+        data.priority,
+
+      category:
+        data.category,
+
+      startDate:
+        data.startDate ?? null,
+
+      endDate:
+        data.endDate ?? null,
+
+      fileUrl:
+        data.fileUrl,
+
+      publicId:
+        data.publicId,
+
+      uploadedBy:
+        data.uploadedBy,
+
+      uploadedByName:
+        data.uploadedByName,
+
+      status:
+        shouldGoToReview
+          ? ManualStatus.PENDING
+          : ManualStatus.APPROVED,
+
+      createdAt:
+        serverTimestamp(),
+
+      updatedAt:
+        serverTimestamp(),
+    },
+  )
 }
 
 export const getPendingManuals = async (): Promise<Manual[]> => {
@@ -115,9 +171,12 @@ export const approveManual = async (
 
 export const rejectManual = async (
   manualId: string,
+  rejectionReason: string,
 ) => {
   await updateDoc(doc(db, 'manuals', manualId), {
     status: ManualStatus.REJECTED,
+    rejectionReason,
+    rejectedAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
 }
@@ -129,4 +188,32 @@ export const updateManualPriority = async (
     priority,
     updatedAt: serverTimestamp(),
   })
+}
+export const getRejectedManuals = async (): Promise<Manual[]> => {
+  const rejectedQuery = query(
+    collection(db, 'manuals'),
+    where('status', '==', ManualStatus.REJECTED),
+  )
+
+  const snapshot = await getDocs(rejectedQuery)
+
+  return snapshot.docs.map((item) => ({
+    id: item.id,
+    ...item.data(),
+  })) as Manual[]
+}
+
+export const restoreRejectedManual = async (
+  manualId: string,
+) => {
+  await updateDoc(doc(db, 'manuals', manualId), {
+    status: ManualStatus.PENDING,
+    updatedAt: serverTimestamp(),
+  })
+}
+
+export const deleteManual = async (
+  manualId: string,
+) => {
+  await deleteDoc(doc(db, 'manuals', manualId))
 }

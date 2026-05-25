@@ -5,6 +5,7 @@ import {
   Button,
   Chip,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
@@ -70,12 +71,15 @@ export default function ApprovalsPage() {
   const [selectedManual, setSelectedManual] =
     useState<Manual | null>(null)
 
+  const [rejectModalOpen, setRejectModalOpen] = useState(false)
+  const [manualToReject, setManualToReject] =
+    useState<Manual | null>(null)
+  const [rejectionReason, setRejectionReason] = useState('')
+
   const loadManuals = async () => {
     try {
       setLoading(true)
-
       const data = await getPendingManuals()
-
       setManuals(data)
     } catch (error) {
       console.error(error)
@@ -95,10 +99,7 @@ export default function ApprovalsPage() {
     if (!user) return
 
     try {
-      await approveManual(
-        manual,
-        user.uid,
-      )
+      await approveManual(manual, user.uid)
 
       setSelectedManual(null)
 
@@ -107,25 +108,42 @@ export default function ApprovalsPage() {
       alert('Manual aprobado y publicado')
     } catch (error) {
       console.error(error)
-
       alert('No se pudo aprobar el manual')
     }
   }
 
-  const handleReject = async (
-    manualId: string,
+  const openRejectModal = (
+    manual: Manual,
   ) => {
+    setManualToReject(manual)
+    setRejectionReason('')
+    setRejectModalOpen(true)
+  }
+
+  const handleReject = async () => {
+    if (!manualToReject) return
+
+    if (!rejectionReason.trim()) {
+      alert('Escribe el motivo del rechazo')
+      return
+    }
+
     try {
-      await rejectManual(manualId)
+      await rejectManual(
+        manualToReject.id,
+        rejectionReason.trim(),
+      )
 
       setSelectedManual(null)
+      setManualToReject(null)
+      setRejectionReason('')
+      setRejectModalOpen(false)
 
       await loadManuals()
 
-      alert('Manual rechazado')
+      alert('Manual rechazado correctamente')
     } catch (error) {
       console.error(error)
-
       alert('No se pudo rechazar el manual')
     }
   }
@@ -135,10 +153,7 @@ export default function ApprovalsPage() {
     priority: ManualPriority,
   ) => {
     try {
-      await updateManualPriority(
-        manualId,
-        priority,
-      )
+      await updateManualPriority(manualId, priority)
 
       setManuals((currentManuals) =>
         currentManuals.map((manual) =>
@@ -161,7 +176,6 @@ export default function ApprovalsPage() {
       )
     } catch (error) {
       console.error(error)
-
       alert('No se pudo actualizar la prioridad')
     }
   }
@@ -190,8 +204,7 @@ export default function ApprovalsPage() {
             </Typography>
 
             <Typography color="text.secondary" mt={0.5}>
-              Aprueba, rechaza o ajusta la prioridad de los manuales
-              enviados por administradores.
+              Aprueba, rechaza o ajusta la prioridad de los manuales enviados.
             </Typography>
           </Box>
 
@@ -250,7 +263,7 @@ export default function ApprovalsPage() {
           </Typography>
 
           <Typography color="text.secondary">
-            Cuando un ADMIN suba un manual aparecerá aquí.
+            Cuando se suba un manual aparecerá aquí.
           </Typography>
         </Paper>
       ) : (
@@ -340,9 +353,7 @@ export default function ApprovalsPage() {
                   <Button
                     variant="outlined"
                     startIcon={<VisibilityIcon />}
-                    onClick={() =>
-                      setSelectedManual(manual)
-                    }
+                    onClick={() => setSelectedManual(manual)}
                     sx={{
                       borderRadius: 3,
                       textTransform: 'none',
@@ -379,9 +390,7 @@ export default function ApprovalsPage() {
 
       <Dialog
         open={!!selectedManual}
-        onClose={() =>
-          setSelectedManual(null)
-        }
+        onClose={() => setSelectedManual(null)}
         fullScreen
       >
         {selectedManual && (
@@ -421,10 +430,7 @@ export default function ApprovalsPage() {
                   select
                   size="small"
                   label="Prioridad"
-                  value={
-                    selectedManual.priority ??
-                    'MEDIA'
-                  }
+                  value={selectedManual.priority ?? 'MEDIA'}
                   onChange={(event) =>
                     handleChangePriority(
                       selectedManual.id,
@@ -473,9 +479,7 @@ export default function ApprovalsPage() {
                   color="error"
                   variant="outlined"
                   startIcon={<DeleteIcon />}
-                  onClick={() =>
-                    handleReject(selectedManual.id)
-                  }
+                  onClick={() => openRejectModal(selectedManual)}
                   sx={{
                     borderRadius: 3,
                     textTransform: 'none',
@@ -488,9 +492,7 @@ export default function ApprovalsPage() {
                 <Button
                   variant="contained"
                   startIcon={<CheckIcon />}
-                  onClick={() =>
-                    handleApprove(selectedManual)
-                  }
+                  onClick={() => handleApprove(selectedManual)}
                   sx={{
                     borderRadius: 3,
                     textTransform: 'none',
@@ -506,11 +508,7 @@ export default function ApprovalsPage() {
                   Aprobar
                 </Button>
 
-                <IconButton
-                  onClick={() =>
-                    setSelectedManual(null)
-                  }
-                >
+                <IconButton onClick={() => setSelectedManual(null)}>
                   <CloseIcon />
                 </IconButton>
               </Box>
@@ -536,6 +534,75 @@ export default function ApprovalsPage() {
             </DialogContent>
           </>
         )}
+      </Dialog>
+
+      <Dialog
+        open={rejectModalOpen}
+        onClose={() => setRejectModalOpen(false)}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            fontWeight: 900,
+            color: '#B42318',
+            borderBottom: '1px solid #F3C7C7',
+          }}
+        >
+          Motivo del rechazo
+        </DialogTitle>
+
+        <DialogContent sx={{ pt: 3 }}>
+          <Typography color="text.secondary" mb={2}>
+            Escribe por qué este manual no fue aprobado. Este comentario
+            aparecerá en el apartado de rechazados.
+          </Typography>
+
+          <TextField
+            label="Comentario del rechazo"
+            fullWidth
+            multiline
+            minRows={4}
+            value={rejectionReason}
+            onChange={(event) =>
+              setRejectionReason(event.target.value)
+            }
+          />
+        </DialogContent>
+
+        <DialogActions sx={{ p: 3 }}>
+          <Button
+            onClick={() => {
+              setRejectModalOpen(false)
+              setManualToReject(null)
+              setRejectionReason('')
+            }}
+            sx={{
+              textTransform: 'none',
+              fontWeight: 800,
+            }}
+          >
+            Cancelar
+          </Button>
+
+          <Button
+            color="error"
+            variant="contained"
+            onClick={handleReject}
+            sx={{
+              borderRadius: 3,
+              textTransform: 'none',
+              fontWeight: 900,
+            }}
+          >
+            Rechazar manual
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   )

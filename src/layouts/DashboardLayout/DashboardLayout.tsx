@@ -97,7 +97,7 @@ export default function DashboardLayout() {
 
     return [
       {
-        label: 'Manuales',
+        label: 'Dashboard',
         icon: <DescriptionIcon />,
         path: '/dashboard',
         roles: [
@@ -108,9 +108,9 @@ export default function DashboardLayout() {
       },
 
       {
-        label: 'Subir manual',
+        label: 'Subir Documento',
         icon: <UploadFileIcon />,
-        path: '/subir-manual',
+        path: '/subir',
         roles: [
           UserRole.ROOT,
           UserRole.ADMIN,

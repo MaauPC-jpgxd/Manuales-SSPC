@@ -7,7 +7,6 @@ import {
   Button,
   Chip,
   LinearProgress,
-  MenuItem,
   Paper,
   TextField,
   Typography,
@@ -16,22 +15,30 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'
-import SecurityIcon from '@mui/icons-material/Security'
+import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber'
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 
 import { useAuthStore } from '@/modules/auth/store/auth.store'
 import { uploadPdfToCloudinary } from '@/services/cloudinary.service'
 import { createManualForReview } from '../services/manuals.service'
 
-type ManualPriority = 'ALTA' | 'MEDIA' | 'BAJA'
+const formatWeekTitle = (
+  startDate: string,
+  endDate: string,
+) => {
+  if (!startDate || !endDate) {
+    return 'Reporte semanal de tickets resueltos'
+  }
 
-export default function UploadManualPage() {
+  return `Tickets resueltos del ${startDate} al ${endDate}`
+}
+
+export default function UploadTicketsPage() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
 
-  const [title, setTitle] = useState('')
-  const [priority, setPriority] =
-    useState<ManualPriority>('MEDIA')
+  const [weekStart, setWeekStart] = useState('')
+  const [weekEnd, setWeekEnd] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
 
@@ -41,8 +48,13 @@ export default function UploadManualPage() {
       return
     }
 
-    if (!title.trim()) {
-      alert('Escribe el título del manual')
+    if (!weekStart || !weekEnd) {
+      alert('Selecciona el inicio y fin de la semana')
+      return
+    }
+
+    if (weekStart > weekEnd) {
+      alert('La fecha inicial no puede ser mayor que la fecha final')
       return
     }
 
@@ -63,20 +75,22 @@ export default function UploadManualPage() {
         await uploadPdfToCloudinary(file)
 
       await createManualForReview({
-        title,
-        priority,
-        category: 'MANUAL',
+        title: formatWeekTitle(weekStart, weekEnd),
+        priority: 'MEDIA',
+        category: 'TICKETS',
+        startDate: weekStart,
+        endDate: weekEnd,
         fileUrl: cloudinaryResponse.secure_url,
         publicId: cloudinaryResponse.public_id,
         uploadedBy: user.uid,
         uploadedByName: user.name,
       })
 
-      setTitle('')
-      setPriority('MEDIA')
+      setWeekStart('')
+      setWeekEnd('')
       setFile(null)
 
-      alert('Manual enviado a revisión')
+      alert('Reporte de tickets publicado correctamente')
       navigate('/subir', { replace: true })
     } catch (error) {
       console.error(error)
@@ -84,7 +98,7 @@ export default function UploadManualPage() {
       alert(
         error instanceof Error
           ? error.message
-          : 'No se pudo subir el manual',
+          : 'No se pudo subir el reporte de tickets',
       )
     } finally {
       setSaving(false)
@@ -132,28 +146,29 @@ export default function UploadManualPage() {
                 height: 54,
                 borderRadius: 3,
                 background: '#EEF3FF',
+                color: '#090979',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <CloudUploadIcon sx={{ color: '#090979' }} />
+              <ConfirmationNumberIcon />
             </Box>
 
             <Box>
               <Typography variant="h5" fontWeight="900" color="#090979">
-                Subir manual
+                Subir tickets resueltos
               </Typography>
 
               <Typography color="text.secondary">
-                El manual será enviado a revisión antes de publicarse.
+                Publica reportes semanales de tickets resueltos en PDF.
               </Typography>
             </Box>
           </Box>
 
           <Chip
-            icon={<SecurityIcon sx={{ fontSize: '16px !important' }} />}
-            label="Revisión requerida"
+            icon={<CalendarMonthIcon sx={{ fontSize: '16px !important' }} />}
+            label="Periodo semanal"
             sx={{
               background: '#EEF3FF',
               color: '#090979',
@@ -186,26 +201,38 @@ export default function UploadManualPage() {
           }}
         >
           <Box className="flex flex-col gap-4">
-            <TextField
-              label="Título del manual"
-              fullWidth
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-            />
-
-            <TextField
-              select
-              label="Prioridad del manual"
-              fullWidth
-              value={priority}
-              onChange={(event) =>
-                setPriority(event.target.value as ManualPriority)
-              }
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: {
+                  xs: '1fr',
+                  md: '1fr 1fr',
+                },
+                gap: 2,
+              }}
             >
-              <MenuItem value="ALTA">🔴 Alta prioridad</MenuItem>
-              <MenuItem value="MEDIA">🟡 Prioridad media</MenuItem>
-              <MenuItem value="BAJA">🔵 Prioridad baja</MenuItem>
-            </TextField>
+              <TextField
+                label="Inicio de semana"
+                type="date"
+                fullWidth
+                value={weekStart}
+                onChange={(event) => setWeekStart(event.target.value)}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+
+              <TextField
+                label="Fin de semana"
+                type="date"
+                fullWidth
+                value={weekEnd}
+                onChange={(event) => setWeekEnd(event.target.value)}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+            </Box>
 
             <Button
               component="label"
@@ -228,7 +255,7 @@ export default function UploadManualPage() {
                 },
               }}
             >
-              {file ? file.name : 'Seleccionar archivo PDF'}
+              {file ? file.name : 'Seleccionar PDF de tickets resueltos'}
 
               <input
                 hidden
@@ -308,7 +335,7 @@ export default function UploadManualPage() {
                 },
               }}
             >
-              {saving ? 'Subiendo manual...' : 'Enviar a revisión'}
+              {saving ? 'Subiendo reporte...' : 'Publicar tickets resueltos'}
             </Button>
           </Box>
         </Paper>
@@ -324,7 +351,7 @@ export default function UploadManualPage() {
           }}
         >
           <Typography fontWeight="900" color="#090979" mb={2}>
-            Requisitos del manual
+            Requisitos del reporte
           </Typography>
 
           <Alert
@@ -334,55 +361,8 @@ export default function UploadManualPage() {
               mb: 2,
             }}
           >
-            Todos los manuales deben ser revisados por ROOT o ADMIN antes de publicarse.
+            Los tickets resueltos se cargan por semana y se consultan por ese periodo.
           </Alert>
-
-          <Paper
-            elevation={0}
-            sx={{
-              p: 2,
-              mb: 2,
-              borderRadius: 3,
-              border: '1px solid #DCE5F3',
-              background: '#FFFFFF',
-            }}
-          >
-            <Typography fontWeight="900" color="#090979" mb={2}>
-              Prioridades de aprendizaje
-            </Typography>
-
-            <Box className="flex flex-col gap-2">
-              <Chip
-                label="🔴 ALTA · Manual crítico u obligatorio"
-                sx={{
-                  justifyContent: 'flex-start',
-                  background: '#FDECEC',
-                  color: '#B42318',
-                  fontWeight: 800,
-                }}
-              />
-
-              <Chip
-                label="🟡 MEDIA · Manual importante"
-                sx={{
-                  justifyContent: 'flex-start',
-                  background: '#FFF7E0',
-                  color: '#9A6700',
-                  fontWeight: 800,
-                }}
-              />
-
-              <Chip
-                label="🔵 BAJA · Material de consulta general"
-                sx={{
-                  justifyContent: 'flex-start',
-                  background: '#EEF3FF',
-                  color: '#090979',
-                  fontWeight: 800,
-                }}
-              />
-            </Box>
-          </Paper>
 
           <Box
             component="ul"
@@ -392,9 +372,9 @@ export default function UploadManualPage() {
             }}
           >
             <li>Solo archivos PDF.</li>
-            <li>Título claro y descriptivo.</li>
-            <li>El manual será enviado a revisión.</li>
-            <li>Los documentos quedan almacenados en Cloudinary.</li>
+            <li>Selecciona inicio y fin de semana.</li>
+            <li>Se publica directamente sin revisión.</li>
+            <li>El filtro de consulta buscará por la semana del reporte.</li>
           </Box>
         </Paper>
       </Box>

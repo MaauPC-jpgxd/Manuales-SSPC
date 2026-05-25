@@ -7,7 +7,6 @@ import {
   Button,
   Chip,
   LinearProgress,
-  MenuItem,
   Paper,
   TextField,
   Typography,
@@ -16,22 +15,19 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'
-import SecurityIcon from '@mui/icons-material/Security'
+import InventoryIcon from '@mui/icons-material/Inventory'
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 
 import { useAuthStore } from '@/modules/auth/store/auth.store'
 import { uploadPdfToCloudinary } from '@/services/cloudinary.service'
 import { createManualForReview } from '../services/manuals.service'
 
-type ManualPriority = 'ALTA' | 'MEDIA' | 'BAJA'
-
-export default function UploadManualPage() {
+export default function UploadInventoryPage() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
 
   const [title, setTitle] = useState('')
-  const [priority, setPriority] =
-    useState<ManualPriority>('MEDIA')
+  const [inventoryDate, setInventoryDate] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
 
@@ -42,7 +38,12 @@ export default function UploadManualPage() {
     }
 
     if (!title.trim()) {
-      alert('Escribe el título del manual')
+      alert('Escribe el título del inventario')
+      return
+    }
+
+    if (!inventoryDate) {
+      alert('Selecciona la fecha del inventario')
       return
     }
 
@@ -64,8 +65,10 @@ export default function UploadManualPage() {
 
       await createManualForReview({
         title,
-        priority,
-        category: 'MANUAL',
+        priority: 'MEDIA',
+        category: 'INVENTARIO',
+        startDate: inventoryDate,
+        endDate: inventoryDate,
         fileUrl: cloudinaryResponse.secure_url,
         publicId: cloudinaryResponse.public_id,
         uploadedBy: user.uid,
@@ -73,10 +76,10 @@ export default function UploadManualPage() {
       })
 
       setTitle('')
-      setPriority('MEDIA')
+      setInventoryDate('')
       setFile(null)
 
-      alert('Manual enviado a revisión')
+      alert('Inventario publicado correctamente')
       navigate('/subir', { replace: true })
     } catch (error) {
       console.error(error)
@@ -84,7 +87,7 @@ export default function UploadManualPage() {
       alert(
         error instanceof Error
           ? error.message
-          : 'No se pudo subir el manual',
+          : 'No se pudo subir el inventario',
       )
     } finally {
       setSaving(false)
@@ -132,33 +135,34 @@ export default function UploadManualPage() {
                 height: 54,
                 borderRadius: 3,
                 background: '#EEF3FF',
+                color: '#090979',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <CloudUploadIcon sx={{ color: '#090979' }} />
+              <InventoryIcon />
             </Box>
 
             <Box>
               <Typography variant="h5" fontWeight="900" color="#090979">
-                Subir manual
+                Subir inventario
               </Typography>
 
               <Typography color="text.secondary">
-                El manual será enviado a revisión antes de publicarse.
+                Publica inventarios diarios en PDF indicando la fecha correspondiente.
               </Typography>
             </Box>
           </Box>
 
           <Chip
-            icon={<SecurityIcon sx={{ fontSize: '16px !important' }} />}
-            label="Revisión requerida"
+            icon={<CalendarMonthIcon sx={{ fontSize: '16px !important' }} />}
+            label="Publicación directa"
             sx={{
-              background: '#EEF3FF',
-              color: '#090979',
+              background: '#EAF7EF',
+              color: '#157347',
               fontWeight: 800,
-              border: '1px solid #DCE5F3',
+              border: '1px solid #A7E0BC',
             }}
           />
         </Box>
@@ -187,25 +191,22 @@ export default function UploadManualPage() {
         >
           <Box className="flex flex-col gap-4">
             <TextField
-              label="Título del manual"
+              label="Título del inventario"
               fullWidth
               value={title}
               onChange={(event) => setTitle(event.target.value)}
             />
 
             <TextField
-              select
-              label="Prioridad del manual"
+              label="Fecha del inventario"
+              type="date"
               fullWidth
-              value={priority}
-              onChange={(event) =>
-                setPriority(event.target.value as ManualPriority)
-              }
-            >
-              <MenuItem value="ALTA">🔴 Alta prioridad</MenuItem>
-              <MenuItem value="MEDIA">🟡 Prioridad media</MenuItem>
-              <MenuItem value="BAJA">🔵 Prioridad baja</MenuItem>
-            </TextField>
+              value={inventoryDate}
+              onChange={(event) => setInventoryDate(event.target.value)}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
 
             <Button
               component="label"
@@ -228,7 +229,7 @@ export default function UploadManualPage() {
                 },
               }}
             >
-              {file ? file.name : 'Seleccionar archivo PDF'}
+              {file ? file.name : 'Seleccionar inventario PDF'}
 
               <input
                 hidden
@@ -308,7 +309,7 @@ export default function UploadManualPage() {
                 },
               }}
             >
-              {saving ? 'Subiendo manual...' : 'Enviar a revisión'}
+              {saving ? 'Subiendo inventario...' : 'Publicar inventario'}
             </Button>
           </Box>
         </Paper>
@@ -324,7 +325,7 @@ export default function UploadManualPage() {
           }}
         >
           <Typography fontWeight="900" color="#090979" mb={2}>
-            Requisitos del manual
+            Requisitos del inventario
           </Typography>
 
           <Alert
@@ -334,55 +335,8 @@ export default function UploadManualPage() {
               mb: 2,
             }}
           >
-            Todos los manuales deben ser revisados por ROOT o ADMIN antes de publicarse.
+            El filtro de consulta usará la fecha del inventario, no la fecha en que fue subido.
           </Alert>
-
-          <Paper
-            elevation={0}
-            sx={{
-              p: 2,
-              mb: 2,
-              borderRadius: 3,
-              border: '1px solid #DCE5F3',
-              background: '#FFFFFF',
-            }}
-          >
-            <Typography fontWeight="900" color="#090979" mb={2}>
-              Prioridades de aprendizaje
-            </Typography>
-
-            <Box className="flex flex-col gap-2">
-              <Chip
-                label="🔴 ALTA · Manual crítico u obligatorio"
-                sx={{
-                  justifyContent: 'flex-start',
-                  background: '#FDECEC',
-                  color: '#B42318',
-                  fontWeight: 800,
-                }}
-              />
-
-              <Chip
-                label="🟡 MEDIA · Manual importante"
-                sx={{
-                  justifyContent: 'flex-start',
-                  background: '#FFF7E0',
-                  color: '#9A6700',
-                  fontWeight: 800,
-                }}
-              />
-
-              <Chip
-                label="🔵 BAJA · Material de consulta general"
-                sx={{
-                  justifyContent: 'flex-start',
-                  background: '#EEF3FF',
-                  color: '#090979',
-                  fontWeight: 800,
-                }}
-              />
-            </Box>
-          </Paper>
 
           <Box
             component="ul"
@@ -392,9 +346,9 @@ export default function UploadManualPage() {
             }}
           >
             <li>Solo archivos PDF.</li>
-            <li>Título claro y descriptivo.</li>
-            <li>El manual será enviado a revisión.</li>
-            <li>Los documentos quedan almacenados en Cloudinary.</li>
+            <li>Debe indicar la fecha correspondiente del inventario.</li>
+            <li>Se publica directamente sin pasar por revisión.</li>
+            <li>La fecha sirve para buscarlo posteriormente.</li>
           </Box>
         </Paper>
       </Box>
