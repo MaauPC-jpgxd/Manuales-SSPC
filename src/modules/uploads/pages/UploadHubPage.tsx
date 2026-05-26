@@ -34,7 +34,7 @@ const uploadCards: UploadCard[] = [
     description:
       'Carga manuales corporativos en PDF para enviarlos a revisión.',
     icon: <DescriptionIcon sx={{ fontSize: 42 }} />,
-    path: '/subir/manual',
+    path: '/subir-manual',
     tag: 'Requiere revisión',
   },
   {
