@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react'
-import { motion } from 'framer-motion'
+import { motion, type Variants } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 
 import {
@@ -73,7 +73,7 @@ const uploadCards: UploadCard[] = [
   },
 ]
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: {},
   visible: {
     transition: {
@@ -83,7 +83,7 @@ const containerVariants = {
   },
 }
 
-const cardVariants = {
+const cardVariants: Variants = {
   hidden: {
     opacity: 0,
     y: 34,
@@ -109,9 +109,7 @@ export default function UploadHubPage() {
   const effectiveRole = previewRole ?? user?.role
 
   const visibleCards = uploadCards.filter((card) =>
-    card.rootOnly
-      ? effectiveRole === UserRole.ROOT
-      : true,
+    card.rootOnly ? effectiveRole === UserRole.ROOT : true,
   )
 
   return (
@@ -292,8 +290,7 @@ export default function UploadHubPage() {
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  transition:
-                    'border-color 0.25s ease, box-shadow 0.25s ease',
+                  transition: 'border-color 0.25s ease, box-shadow 0.25s ease',
                   '&::before': {
                     content: '""',
                     position: 'absolute',

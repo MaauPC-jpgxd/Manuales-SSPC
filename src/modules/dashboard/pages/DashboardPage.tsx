@@ -60,33 +60,6 @@ const baseCards = [
   },
 ]
 
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.11,
-      delayChildren: 0.15,
-    },
-  },
-}
-
-const cardVariants = {
-  hidden: {
-    opacity: 0,
-    y: 34,
-    scale: 0.94,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.48,
-      ease: 'easeOut',
-    },
-  },
-}
-
 export default function DashboardPage() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
@@ -100,7 +73,7 @@ export default function DashboardPage() {
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.55, ease: 'easeOut' }}
+        transition={{ duration: 0.55 }}
       >
         <Paper
           elevation={0}
@@ -118,7 +91,10 @@ export default function DashboardPage() {
           <Box
             component={motion.div}
             animate={{ rotate: 360 }}
-            transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
+            transition={{
+              duration: 26,
+              repeat: Infinity,
+            }}
             sx={{
               position: 'absolute',
               width: 220,
@@ -157,10 +133,6 @@ export default function DashboardPage() {
       </motion.div>
 
       <Box
-        component={motion.div}
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
         sx={{
           display: 'grid',
           gridTemplateColumns: {
@@ -171,7 +143,7 @@ export default function DashboardPage() {
           gap: 3,
         }}
       >
-        {cards.map((card) => {
+        {cards.map((card, index) => {
           const isRejected = card.title === 'Rechazados'
           const isFormat = card.title === 'Formato autorizado'
 
@@ -202,7 +174,20 @@ export default function DashboardPage() {
           return (
             <motion.div
               key={card.title}
-              variants={cardVariants}
+              initial={{
+                opacity: 0,
+                y: 34,
+                scale: 0.94,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                scale: 1,
+              }}
+              transition={{
+                duration: 0.48,
+                delay: index * 0.11,
+              }}
               whileHover={{
                 y: -10,
                 scale: [1, 1.035, 1.015, 1.03],
@@ -211,7 +196,6 @@ export default function DashboardPage() {
                     duration: 0.75,
                     repeat: Infinity,
                     repeatType: 'mirror',
-                    ease: 'easeInOut',
                   },
                   y: {
                     duration: 0.25,
@@ -274,7 +258,6 @@ export default function DashboardPage() {
                   transition={{
                     duration: 1.15,
                     repeat: Infinity,
-                    ease: 'easeOut',
                   }}
                   sx={{
                     position: 'absolute',
@@ -294,7 +277,6 @@ export default function DashboardPage() {
                   transition={{
                     duration: 1,
                     repeat: Infinity,
-                    ease: 'easeInOut',
                   }}
                   sx={{
                     position: 'absolute',
@@ -320,7 +302,6 @@ export default function DashboardPage() {
                     transition={{
                       duration: 0.65,
                       repeat: Infinity,
-                      ease: 'easeInOut',
                     }}
                     sx={{
                       width: 76,
@@ -373,7 +354,6 @@ export default function DashboardPage() {
                       transition={{
                         duration: 0.65,
                         repeat: Infinity,
-                        ease: 'easeInOut',
                       }}
                       sx={{
                         width: 38,

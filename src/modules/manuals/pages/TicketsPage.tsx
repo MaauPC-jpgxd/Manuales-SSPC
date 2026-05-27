@@ -58,42 +58,13 @@ const formatCreatedAt = (createdAt: unknown) => {
   return 'Sin fecha de subida'
 }
 
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.11,
-      delayChildren: 0.15,
-    },
-  },
-}
-
-const cardVariants = {
-  hidden: {
-    opacity: 0,
-    y: 34,
-    scale: 0.94,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.48,
-      ease: 'easeOut',
-    },
-  },
-}
-
 export default function TicketsPage() {
   const navigate = useNavigate()
 
   const [tickets, setTickets] = useState<Manual[]>([])
   const [loading, setLoading] = useState(true)
-
   const [weekStart, setWeekStart] = useState('')
   const [weekEnd, setWeekEnd] = useState('')
-
   const [selectedTicket, setSelectedTicket] = useState<Manual | null>(null)
 
   const loadTickets = async () => {
@@ -101,7 +72,6 @@ export default function TicketsPage() {
       setLoading(true)
 
       const data = await getApprovedManuals()
-
       const onlyTickets = data.filter((item) => item.category === 'TICKETS')
 
       setTickets(onlyTickets)
@@ -122,13 +92,8 @@ export default function TicketsPage() {
       const itemStart = item.startDate ?? ''
       const itemEnd = item.endDate ?? ''
 
-      if (weekStart && itemEnd < weekStart) {
-        return false
-      }
-
-      if (weekEnd && itemStart > weekEnd) {
-        return false
-      }
+      if (weekStart && itemEnd < weekStart) return false
+      if (weekEnd && itemStart > weekEnd) return false
 
       return true
     })
@@ -139,7 +104,7 @@ export default function TicketsPage() {
       <motion.div
         initial={{ opacity: 0, x: -18 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.45, ease: 'easeOut' }}
+        transition={{ duration: 0.45 }}
       >
         <Button
           component={motion.button}
@@ -176,7 +141,7 @@ export default function TicketsPage() {
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.55, ease: 'easeOut' }}
+        transition={{ duration: 0.55 }}
       >
         <Paper
           elevation={0}
@@ -194,7 +159,10 @@ export default function TicketsPage() {
           <Box
             component={motion.div}
             animate={{ rotate: 360 }}
-            transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
+            transition={{
+              duration: 26,
+              repeat: Infinity,
+            }}
             sx={{
               position: 'absolute',
               width: 220,
@@ -229,7 +197,6 @@ export default function TicketsPage() {
                 transition={{
                   duration: 0.65,
                   repeat: Infinity,
-                  ease: 'easeInOut',
                 }}
                 sx={{
                   width: 64,
@@ -291,7 +258,7 @@ export default function TicketsPage() {
       <motion.div
         initial={{ opacity: 0, y: 28, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.48, delay: 0.1, ease: 'easeOut' }}
+        transition={{ duration: 0.48, delay: 0.1 }}
       >
         <Paper
           elevation={0}
@@ -463,7 +430,7 @@ export default function TicketsPage() {
         <motion.div
           initial={{ opacity: 0, y: 28, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.45, ease: 'easeOut' }}
+          transition={{ duration: 0.45 }}
         >
           <Paper
             elevation={0}
@@ -496,17 +463,24 @@ export default function TicketsPage() {
           </Paper>
         </motion.div>
       ) : (
-        <Box
-          component={motion.div}
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}
-        >
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           {filteredTickets.map((ticket, index) => (
             <motion.div
               key={ticket.id}
-              variants={cardVariants}
+              initial={{
+                opacity: 0,
+                y: 34,
+                scale: 0.94,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                scale: 1,
+              }}
+              transition={{
+                duration: 0.48,
+                delay: index * 0.11,
+              }}
               whileHover={{
                 y: -6,
                 scale: [1, 1.012, 1.005, 1.012],
@@ -515,7 +489,6 @@ export default function TicketsPage() {
                     duration: 0.75,
                     repeat: Infinity,
                     repeatType: 'mirror',
-                    ease: 'easeInOut',
                   },
                   y: {
                     duration: 0.25,
@@ -566,7 +539,6 @@ export default function TicketsPage() {
                   transition={{
                     duration: 1.15,
                     repeat: Infinity,
-                    ease: 'easeOut',
                   }}
                   sx={{
                     position: 'absolute',
@@ -596,7 +568,6 @@ export default function TicketsPage() {
                     transition={{
                       duration: 0.65,
                       repeat: Infinity,
-                      ease: 'easeInOut',
                     }}
                     sx={{
                       width: 62,
