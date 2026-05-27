@@ -1,72 +1,131 @@
 import { motion } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
 
-import { Box, Paper, Typography, Chip } from '@mui/material'
+import {
+  Box,
+  Button,
+  Chip,
+  Paper,
+  Typography,
+} from '@mui/material'
 
-import DescriptionIcon from '@mui/icons-material/Description'
-import InventoryIcon from '@mui/icons-material/Inventory'
-import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber'
-import BlockIcon from '@mui/icons-material/Block'
-import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled'
-import ArticleIcon from '@mui/icons-material/Article'
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
-import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize'
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
+import MenuBookIcon from '@mui/icons-material/MenuBook'
+import RestartAltIcon from '@mui/icons-material/RestartAlt'
+import WarningAmberIcon from '@mui/icons-material/WarningAmber'
+import ShieldIcon from '@mui/icons-material/Shield'
+import PersonSearchIcon from '@mui/icons-material/PersonSearch'
 
 import { useAuthStore } from '@/modules/auth/store/auth.store'
 import { UserRole } from '@/types/roles'
 
-const baseCards = [
+const isLocalhost =
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1'
+
+const roleCards = [
   {
-    title: 'Manuales',
-    description: 'Consulta manuales corporativos aprobados.',
-    icon: <DescriptionIcon sx={{ fontSize: 42 }} />,
-    path: '/manuales',
-    roles: [UserRole.ROOT, UserRole.ADMIN, UserRole.LECTOR],
+    role: UserRole.ROOT,
+    title: 'Ver como ROOT',
+    description: 'Vista completa del sistema con todos los permisos.',
+    icon: <AdminPanelSettingsIcon sx={{ fontSize: 42 }} />,
+    color: '#157347',
+    softBg: '#EAF7EF',
+    border: '#A7E0BC',
   },
   {
-    title: 'Inventario PDF',
-    description: 'Consulta inventarios diarios por fecha.',
-    icon: <InventoryIcon sx={{ fontSize: 42 }} />,
-    path: '/inventario',
-    roles: [UserRole.ROOT, UserRole.ADMIN, UserRole.LECTOR],
+    role: UserRole.ADMIN,
+    title: 'Ver como ADMIN',
+    description: 'Vista administrativa para carga y consulta documental.',
+    icon: <VisibilityIcon sx={{ fontSize: 42 }} />,
+    color: '#090979',
+    softBg: '#EEF3FF',
+    border: '#DCE5F3',
   },
   {
-    title: 'Tickets resueltos',
-    description: 'Consulta documentación semanal de tickets cerrados.',
-    icon: <ConfirmationNumberIcon sx={{ fontSize: 42 }} />,
-    path: '/tickets',
-    roles: [UserRole.ROOT, UserRole.ADMIN, UserRole.LECTOR],
-  },
-  {
-    title: 'Video tutoriales',
-    description: 'Consulta videos de capacitación y soporte corporativo.',
-    icon: <PlayCircleFilledIcon sx={{ fontSize: 42 }} />,
-    path: '/videos',
-    roles: [UserRole.ROOT, UserRole.ADMIN, UserRole.LECTOR],
-  },
-  {
-    title: 'Formato autorizado',
-    description: 'Consulta la plantilla corporativa oficial actualizada.',
-    icon: <ArticleIcon sx={{ fontSize: 42 }} />,
-    path: '/formato',
-    roles: [UserRole.ROOT, UserRole.ADMIN, UserRole.LECTOR],
-  },
-  {
-    title: 'Rechazados',
-    description: 'Consulta documentos rechazados.',
-    icon: <BlockIcon sx={{ fontSize: 42 }} />,
-    path: '/rechazados',
-    roles: [UserRole.ROOT, UserRole.ADMIN],
+    role: UserRole.LECTOR,
+    title: 'Ver como LECTOR',
+    description: 'Vista de consulta para usuarios con acceso de lectura.',
+    icon: <MenuBookIcon sx={{ fontSize: 42 }} />,
+    color: '#7A4F01',
+    softBg: '#FFF7E0',
+    border: '#F6D98B',
   },
 ]
 
-export default function DashboardPage() {
-  const navigate = useNavigate()
+export default function RolePreviewPage() {
   const user = useAuthStore((state) => state.user)
+  const previewRole = useAuthStore((state) => state.previewRole)
+  const setPreviewRole = useAuthStore((state) => state.setPreviewRole)
 
-  const cards = baseCards.filter((card) =>
-    user ? card.roles.includes(user.role) : false,
-  )
+  if (!isLocalhost) {
+    return (
+      <Box sx={{ position: 'relative' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 24, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 3, md: 4 },
+              borderRadius: 5,
+              border: '1px solid #F3C7C7',
+              background: 'linear-gradient(135deg, #FFF8F8 0%, #FFFFFF 100%)',
+              boxShadow: '0 22px 55px rgba(180, 35, 24, 0.08)',
+              position: 'relative',
+              overflow: 'hidden',
+            }}
+          >
+            <Box
+              component={motion.div}
+              animate={{
+                scale: [1, 1.12, 1],
+                opacity: [0.35, 0.65, 0.35],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+              }}
+              sx={{
+                position: 'absolute',
+                width: 220,
+                height: 220,
+                borderRadius: '50%',
+                right: -80,
+                top: -90,
+                background:
+                  'radial-gradient(circle, rgba(180,35,24,0.18) 0%, rgba(180,35,24,0) 70%)',
+              }}
+            />
+
+            <Box sx={{ position: 'relative', zIndex: 1 }}>
+              <Chip
+                icon={<WarningAmberIcon sx={{ fontSize: '16px !important' }} />}
+                label="Entorno restringido"
+                sx={{
+                  mb: 2,
+                  fontWeight: 900,
+                  color: '#B42318',
+                  background: '#FDECEC',
+                  border: '1px solid #F3C7C7',
+                }}
+              />
+
+              <Typography variant="h4" fontWeight="900" color="#B42318">
+                Función disponible solo en localhost
+              </Typography>
+
+              <Typography color="text.secondary" mt={1} maxWidth={720}>
+                Esta herramienta solo funciona en entorno local para pruebas de desarrollo.
+              </Typography>
+            </Box>
+          </Paper>
+        </motion.div>
+      </Box>
+    )
+  }
 
   return (
     <Box sx={{ position: 'relative' }}>
@@ -109,25 +168,88 @@ export default function DashboardPage() {
           />
 
           <Box sx={{ position: 'relative', zIndex: 1 }}>
-            <Chip
-              icon={<DashboardCustomizeIcon />}
-              label="Centro documental"
+            <Box
               sx={{
-                mb: 2,
-                fontWeight: 800,
-                color: '#090979',
-                background: '#EEF3FF',
-                border: '1px solid #DCE5F3',
+                display: 'flex',
+                alignItems: { xs: 'flex-start', sm: 'center' },
+                justifyContent: 'space-between',
+                gap: 3,
+                flexWrap: 'wrap',
               }}
-            />
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                  component={motion.div}
+                  whileHover={{
+                    rotate: [-2, 3, -3, 2],
+                    scale: [1, 1.08, 1],
+                  }}
+                  transition={{
+                    duration: 0.65,
+                    repeat: Infinity,
+                  }}
+                  sx={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: 4,
+                    background: '#EEF3FF',
+                    color: '#090979',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.7)',
+                  }}
+                >
+                  <PersonSearchIcon sx={{ fontSize: 34 }} />
+                </Box>
 
-            <Typography variant="h4" fontWeight="900" color="#090979">
-              Panel documental
-            </Typography>
+                <Box>
+                  <Chip
+                    icon={<ShieldIcon sx={{ fontSize: '16px !important' }} />}
+                    label="Modo de prueba"
+                    size="small"
+                    sx={{
+                      mb: 1,
+                      fontWeight: 800,
+                      color: '#090979',
+                      background: '#EEF3FF',
+                      border: '1px solid #DCE5F3',
+                    }}
+                  />
 
-            <Typography color="text.secondary" mt={1} maxWidth={650}>
-              Selecciona el módulo que deseas consultar dentro de la base de conocimiento corporativa.
-            </Typography>
+                  <Typography variant="h4" fontWeight="900" color="#090979">
+                    Ver como
+                  </Typography>
+
+                  <Typography color="text.secondary" mt={1} maxWidth={720}>
+                    Simula visualmente cómo ve el sistema un ROOT, ADMIN o LECTOR.
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Box sx={{ display: 'flex', gap: 1.2, alignItems: 'center', flexWrap: 'wrap' }}>
+                <Chip
+                  label={`Usuario real: ${user?.role ?? 'Sin rol'}`}
+                  sx={{
+                    background: '#FFFFFF',
+                    color: '#090979',
+                    fontWeight: 900,
+                    border: '1px solid #DCE5F3',
+                  }}
+                />
+
+                <Chip
+                  label={`Vista actual: ${previewRole ?? user?.role ?? 'Sin rol'}`}
+                  sx={{
+                    background: '#EEF3FF',
+                    color: '#090979',
+                    fontWeight: 900,
+                    border: '1px solid #DCE5F3',
+                  }}
+                />
+              </Box>
+            </Box>
           </Box>
         </Paper>
       </motion.div>
@@ -137,43 +259,18 @@ export default function DashboardPage() {
           display: 'grid',
           gridTemplateColumns: {
             xs: '1fr',
-            md: 'repeat(2, 1fr)',
-            xl: 'repeat(3, 1fr)',
+            md: 'repeat(3, 1fr)',
           },
           gap: 3,
         }}
       >
-        {cards.map((card, index) => {
-          const isRejected = card.title === 'Rechazados'
-          const isFormat = card.title === 'Formato autorizado'
-
-          const mainColor = isRejected
-            ? '#B42318'
-            : isFormat
-              ? '#157347'
-              : '#090979'
-
-          const softBg = isRejected
-            ? '#FDECEC'
-            : isFormat
-              ? '#EAF7EF'
-              : '#EEF3FF'
-
-          const borderColor = isRejected
-            ? '#F3C7C7'
-            : isFormat
-              ? '#A7E0BC'
-              : '#DCE5F3'
-
-          const cardBg = isRejected
-            ? 'linear-gradient(135deg, #FFF8F8 0%, #FFFFFF 100%)'
-            : isFormat
-              ? 'linear-gradient(135deg, #FFFFFF 0%, #F1FFF6 100%)'
-              : 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 100%)'
+        {roleCards.map((card, index) => {
+          const activeRole = previewRole ?? user?.role
+          const isActive = activeRole === card.role
 
           return (
             <motion.div
-              key={card.title}
+              key={card.role}
               initial={{
                 opacity: 0,
                 y: 34,
@@ -203,22 +300,26 @@ export default function DashboardPage() {
                 },
               }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate(card.path)}
+              onClick={() => setPreviewRole(card.role)}
               style={{ cursor: 'pointer' }}
             >
               <Paper
                 elevation={0}
                 sx={{
                   p: 4,
-                  minHeight: 250,
+                  minHeight: 260,
+                  height: '100%',
                   borderRadius: 5,
-                  border: `1px solid ${borderColor}`,
-                  background: cardBg,
-                  boxShadow: '0 18px 45px rgba(9, 9, 121, 0.08)',
+                  border: `1px solid ${isActive ? card.color : card.border}`,
+                  background: isActive
+                    ? `linear-gradient(135deg, ${card.softBg} 0%, #FFFFFF 100%)`
+                    : 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 100%)',
+                  boxShadow: isActive
+                    ? '0 24px 65px rgba(9, 9, 121, 0.16)'
+                    : '0 18px 45px rgba(9, 9, 121, 0.08)',
                   position: 'relative',
                   overflow: 'hidden',
-                  transition:
-                    'border-color 0.25s ease, box-shadow 0.25s ease',
+                  transition: 'border-color 0.25s ease, box-shadow 0.25s ease',
                   '&::before': {
                     content: '""',
                     position: 'absolute',
@@ -235,12 +336,12 @@ export default function DashboardPage() {
                     borderRadius: '50%',
                     right: -55,
                     bottom: -55,
-                    background: softBg,
-                    opacity: 0.8,
+                    background: card.softBg,
+                    opacity: 0.85,
                     transition: 'all 0.25s ease',
                   },
                   '&:hover': {
-                    borderColor: mainColor,
+                    borderColor: card.color,
                     boxShadow: '0 28px 70px rgba(9, 9, 121, 0.17)',
                   },
                   '&:hover::after': {
@@ -263,34 +364,36 @@ export default function DashboardPage() {
                     position: 'absolute',
                     inset: 10,
                     borderRadius: 5,
-                    border: `2px solid ${mainColor}`,
+                    border: `2px solid ${card.color}`,
                     pointerEvents: 'none',
                     zIndex: 0,
                   }}
                 />
 
-                <Box
-                  component={motion.div}
-                  whileHover={{
-                    opacity: [0.2, 0.5, 0.2],
-                  }}
-                  transition={{
-                    duration: 1,
-                    repeat: Infinity,
-                  }}
-                  sx={{
-                    position: 'absolute',
-                    top: 18,
-                    right: 18,
-                    width: 12,
-                    height: 12,
-                    borderRadius: '50%',
-                    background: mainColor,
-                    boxShadow: `0 0 0 6px ${softBg}`,
-                    opacity: 0.2,
-                    zIndex: 2,
-                  }}
-                />
+                {isActive && (
+                  <Box
+                    component={motion.div}
+                    animate={{
+                      scale: [1, 1.45, 1],
+                      opacity: [0.45, 0, 0.45],
+                    }}
+                    transition={{
+                      duration: 1.8,
+                      repeat: Infinity,
+                    }}
+                    sx={{
+                      position: 'absolute',
+                      top: 20,
+                      right: 20,
+                      width: 12,
+                      height: 12,
+                      borderRadius: '50%',
+                      background: card.color,
+                      boxShadow: `0 0 0 6px ${card.softBg}`,
+                      zIndex: 2,
+                    }}
+                  />
+                )}
 
                 <Box sx={{ position: 'relative', zIndex: 1 }}>
                   <Box
@@ -307,20 +410,19 @@ export default function DashboardPage() {
                       width: 76,
                       height: 76,
                       borderRadius: 4,
-                      background: softBg,
-                      color: mainColor,
+                      background: card.softBg,
+                      color: card.color,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       mb: 3,
-                      boxShadow:
-                        'inset 0 0 0 1px rgba(255,255,255,0.7)',
+                      boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.7)',
                     }}
                   >
                     {card.icon}
                   </Box>
 
-                  <Typography variant="h6" fontWeight="900" color={mainColor}>
+                  <Typography variant="h6" fontWeight="900" color={card.color}>
                     {card.title}
                   </Typography>
 
@@ -328,53 +430,58 @@ export default function DashboardPage() {
                     {card.description}
                   </Typography>
 
-                  <Box
+                  <Chip
+                    label={isActive ? 'Vista activa' : 'Cambiar vista'}
+                    size="small"
                     sx={{
                       mt: 3,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
+                      background: card.softBg,
+                      color: card.color,
+                      fontWeight: 900,
+                      border: `1px solid ${card.border}`,
                     }}
-                  >
-                    <Chip
-                      label="Abrir módulo"
-                      size="small"
-                      sx={{
-                        color: mainColor,
-                        background: softBg,
-                        fontWeight: 800,
-                      }}
-                    />
-
-                    <Box
-                      component={motion.div}
-                      whileHover={{
-                        x: [0, 6, 0],
-                      }}
-                      transition={{
-                        duration: 0.65,
-                        repeat: Infinity,
-                      }}
-                      sx={{
-                        width: 38,
-                        height: 38,
-                        borderRadius: '50%',
-                        background: softBg,
-                        color: mainColor,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <ArrowForwardIcon />
-                    </Box>
-                  </Box>
+                  />
                 </Box>
               </Paper>
             </motion.div>
           )
         })}
       </Box>
+
+      <motion.div
+        initial={{ opacity: 0, y: 22 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: 0.45,
+          delay: 0.35,
+        }}
+      >
+        <Button
+          component={motion.button}
+          whileHover={{ y: -2, scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
+          startIcon={<RestartAltIcon />}
+          onClick={() => setPreviewRole(null)}
+          sx={{
+            mt: 4,
+            height: 52,
+            px: 3,
+            borderRadius: 3,
+            textTransform: 'none',
+            color: '#090979',
+            background: '#EEF3FF',
+            border: '1px solid #DCE5F3',
+            fontWeight: 900,
+            boxShadow: '0 10px 25px rgba(9,9,121,0.08)',
+            '&:hover': {
+              background: '#E1EAFE',
+              boxShadow: '0 16px 34px rgba(9,9,121,0.14)',
+            },
+          }}
+        >
+          Volver a mi rol real
+        </Button>
+      </motion.div>
     </Box>
   )
 }
