@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 
 import {
   Box,
@@ -17,12 +18,17 @@ import {
   IconButton,
   Tooltip,
   Avatar,
+  CircularProgress,
 } from '@mui/material'
 
 import DeleteIcon from '@mui/icons-material/Delete'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import GroupIcon from '@mui/icons-material/Group'
 import SecurityIcon from '@mui/icons-material/Security'
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
+import EmailIcon from '@mui/icons-material/Email'
+import BadgeIcon from '@mui/icons-material/Badge'
+import LockIcon from '@mui/icons-material/Lock'
 
 import {
   DataGrid,
@@ -30,12 +36,9 @@ import {
 } from '@mui/x-data-grid'
 
 import { UserRole } from '@/types/roles'
-
 import { useAuthStore } from '@/modules/auth/store/auth.store'
 
-import type {
-  SystemUser,
-} from '../types/user.types'
+import type { SystemUser } from '../types/user.types'
 
 import {
   createSystemUser,
@@ -71,9 +74,7 @@ export default function UsersPage() {
   const loadUsers = async () => {
     try {
       setLoading(true)
-
       const data = await getUsers()
-
       setUsers(data)
     } catch (error) {
       console.error(error)
@@ -111,7 +112,6 @@ export default function UsersPage() {
       setSaving(true)
 
       await createSystemUser(form)
-
       await loadUsers()
 
       setForm(initialForm)
@@ -164,9 +164,7 @@ export default function UsersPage() {
     }
   }
 
-  const handleDeleteUser = async (
-    uid: string,
-  ) => {
+  const handleDeleteUser = async (uid: string) => {
     if (currentUser?.uid === uid) {
       alert('No puedes eliminar tu propio usuario.')
       return
@@ -197,41 +195,39 @@ export default function UsersPage() {
       field: 'name',
       headerName: 'Usuario',
       flex: 1,
-      minWidth: 220,
+      minWidth: 260,
       renderCell: (params) => (
-        <Box className="flex items-center gap-3">
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Avatar
             sx={{
               bgcolor: '#090979',
-              width: 36,
-              height: 36,
-              fontWeight: 800,
+              width: 44,
+              height: 44,
+              fontWeight: 900,
+              boxShadow: '0 10px 20px rgba(9,9,121,0.18)',
             }}
           >
-            {params.row.name?.charAt(0)}
+            {params.row.name?.charAt(0)?.toUpperCase()}
           </Avatar>
 
-          <Box>
-         <Typography
-  fontWeight="800"
-  color="#090979"
-  sx={{
-    lineHeight: 1.2,
-    fontSize: 15,
-  }}
->
-  {params.row.name}
-</Typography>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography
+              fontWeight="900"
+              color="#090979"
+              noWrap
+              sx={{ lineHeight: 1.2, fontSize: 15 }}
+            >
+              {params.row.name}
+            </Typography>
 
-<Typography
-  variant="body2"
-  color="text.secondary"
-  sx={{
-    mt: 0.3,
-  }}
->
-  {params.row.email}
-</Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              noWrap
+              sx={{ mt: 0.3 }}
+            >
+              {params.row.email}
+            </Typography>
           </Box>
         </Box>
       ),
@@ -239,7 +235,7 @@ export default function UsersPage() {
     {
       field: 'role',
       headerName: 'Rol',
-      width: 180,
+      width: 190,
       renderCell: (params) => (
         <TextField
           select
@@ -253,10 +249,11 @@ export default function UsersPage() {
             )
           }
           sx={{
-            minWidth: 140,
+            minWidth: 145,
             '& .MuiOutlinedInput-root': {
               borderRadius: 3,
-              fontWeight: 700,
+              fontWeight: 800,
+              background: '#FFFFFF',
             },
           }}
         >
@@ -269,14 +266,14 @@ export default function UsersPage() {
     {
       field: 'status',
       headerName: 'Estado',
-      width: 150,
+      width: 155,
       renderCell: (params) => (
         <Chip
           label={params.row.status ? 'Activo' : 'Inactivo'}
           sx={{
             background: params.row.status ? '#EAF7EF' : '#F1F5F9',
             color: params.row.status ? '#157347' : '#64748B',
-            fontWeight: 800,
+            fontWeight: 900,
             border: params.row.status
               ? '1px solid #A7E0BC'
               : '1px solid #CBD5E1',
@@ -287,13 +284,13 @@ export default function UsersPage() {
     {
       field: 'actions',
       headerName: 'Acciones',
-      width: 190,
+      width: 200,
       sortable: false,
       renderCell: (params) => {
         const isMe = currentUser?.uid === params.row.uid
 
         return (
-          <Box className="flex items-center gap-2">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
             <Tooltip title={isMe ? 'No puedes apagar tu propia cuenta' : 'Activar / desactivar'}>
               <span>
                 <Switch
@@ -317,7 +314,11 @@ export default function UsersPage() {
                   onClick={() => handleDeleteUser(params.row.uid)}
                   sx={{
                     border: '1px solid #F3C7C7',
-                    borderRadius: 2,
+                    borderRadius: 2.5,
+                    background: '#FFF8F8',
+                    '&:hover': {
+                      background: '#FDECEC',
+                    },
                   }}
                 >
                   <DeleteIcon />
@@ -331,156 +332,249 @@ export default function UsersPage() {
   ]
 
   return (
-    <Box>
-      <Paper
-        elevation={0}
-        sx={{
-          mb: 4,
-          p: 3,
-          borderRadius: 4,
-          border: '1px solid #DCE5F3',
-          background:
-            'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 100%)',
-        }}
+    <Box sx={{ position: 'relative' }}>
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.55, ease: 'easeOut' }}
       >
-        <Box className="flex items-center justify-between gap-4 flex-wrap">
-          <Box className="flex items-center gap-3">
-            <Box
-              sx={{
-                width: 54,
-                height: 54,
-                borderRadius: 3,
-                background: '#EEF3FF',
+        <Paper
+          elevation={0}
+          sx={{
+            mb: 4,
+            p: { xs: 3, md: 4 },
+            borderRadius: 5,
+            border: '1px solid #DCE5F3',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 100%)',
+            boxShadow: '0 22px 55px rgba(9, 9, 121, 0.09)',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          <Box
+            component={motion.div}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
+            sx={{
+              position: 'absolute',
+              width: 220,
+              height: 220,
+              borderRadius: '50%',
+              right: -70,
+              top: -80,
+              background:
+                'conic-gradient(from 180deg, rgba(9,9,121,0.16), rgba(29,78,216,0.05), rgba(9,9,121,0.16))',
+              filter: 'blur(2px)',
+            }}
+          />
+
+          <Box
+            sx={{
+              position: 'relative',
+              zIndex: 1,
+              display: 'flex',
+              alignItems: { xs: 'flex-start', sm: 'center' },
+              justifyContent: 'space-between',
+              gap: 3,
+              flexWrap: 'wrap',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box
+                component={motion.div}
+                whileHover={{
+                  rotate: [-2, 3, -3, 2],
+                  scale: [1, 1.08, 1],
+                }}
+                transition={{
+                  duration: 0.65,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                }}
+                sx={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: 4,
+                  background: '#EEF3FF',
+                  color: '#090979',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <GroupIcon sx={{ fontSize: 34 }} />
+              </Box>
+
+              <Box>
+                <Chip
+                  icon={<AdminPanelSettingsIcon sx={{ fontSize: '16px !important' }} />}
+                  label="Panel administrativo"
+                  size="small"
+                  sx={{
+                    mb: 1,
+                    fontWeight: 800,
+                    color: '#090979',
+                    background: '#EEF3FF',
+                    border: '1px solid #DCE5F3',
+                  }}
+                />
+
+                <Typography variant="h4" fontWeight="900" color="#090979">
+                  Gestión de usuarios
+                </Typography>
+
+                <Typography color="text.secondary" mt={1} maxWidth={700}>
+                  Administra roles, accesos y estado de usuarios registrados.
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+              <Chip
+                icon={<SecurityIcon sx={{ fontSize: '16px !important' }} />}
+                label={`${users.length} usuario${users.length === 1 ? '' : 's'}`}
+                sx={{
+                  background: '#EEF3FF',
+                  color: '#090979',
+                  fontWeight: 900,
+                  border: '1px solid #DCE5F3',
+                  height: 36,
+                }}
+              />
+
+              <Button
+                component={motion.button}
+                whileHover={{ y: -2, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                variant="contained"
+                startIcon={<PersonAddIcon />}
+                onClick={() => {
+                  setForm(initialForm)
+                  setModalOpen(true)
+                }}
+                sx={{
+                  borderRadius: 3,
+                  textTransform: 'none',
+                  fontWeight: 900,
+                  px: 3,
+                  height: 44,
+                  background:
+                    'linear-gradient(135deg, #090979 0%, #1D4ED8 100%)',
+                  boxShadow: '0 10px 25px rgba(9,9,121,0.18)',
+                  '&:hover': {
+                    background:
+                      'linear-gradient(135deg, #070760 0%, #1E40AF 100%)',
+                    boxShadow: '0 16px 34px rgba(9,9,121,0.25)',
+                  },
+                }}
+              >
+                Nuevo usuario
+              </Button>
+            </Box>
+          </Box>
+        </Paper>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 28, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.12, ease: 'easeOut' }}
+      >
+        <Paper
+          elevation={0}
+          sx={{
+            borderRadius: 5,
+            border: '1px solid #DCE5F3',
+            overflow: 'hidden',
+            background: '#FFFFFF',
+            boxShadow: '0 18px 45px rgba(9, 9, 121, 0.08)',
+            position: 'relative',
+          }}
+        >
+          <DataGrid
+            rows={users}
+            columns={columns}
+            getRowId={(row) => row.uid}
+            loading={loading}
+            autoHeight
+            rowHeight={92}
+            columnHeaderHeight={70}
+            disableRowSelectionOnClick
+            pageSizeOptions={[5, 10, 25]}
+            slots={{
+              loadingOverlay: () => (
+                <Box
+                  sx={{
+                    height: 220,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 2,
+                    color: '#090979',
+                    fontWeight: 900,
+                  }}
+                >
+                  <CircularProgress size={26} sx={{ color: '#090979' }} />
+                  Cargando usuarios...
+                </Box>
+              ),
+            }}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 5,
+                  page: 0,
+                },
+              },
+            }}
+            sx={{
+              border: 0,
+
+              '& .MuiDataGrid-columnHeaders': {
+                backgroundColor: '#F8FAFF',
+                color: '#090979',
+                fontWeight: 900,
+                borderBottom: '1px solid #DCE5F3',
+                minHeight: '70px !important',
+              },
+
+              '& .MuiDataGrid-columnHeaderTitle': {
+                fontWeight: 900,
+                fontSize: '15px',
+              },
+
+              '& .MuiDataGrid-row': {
+                minHeight: '92px !important',
+                maxHeight: '92px !important',
+                transition: 'all 0.25s ease',
+
+                '&:hover': {
+                  backgroundColor: '#F8FAFF',
+                  transform: 'scale(1.003)',
+                },
+              },
+
+              '& .MuiDataGrid-cell': {
+                borderBottom: '1px solid #EEF2F7',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <GroupIcon sx={{ color: '#090979' }} />
-            </Box>
+                fontSize: '15px',
+              },
 
-            <Box>
-              <Typography variant="h5" fontWeight="900" color="#090979">
-                Gestión de usuarios
-              </Typography>
+              '& .MuiDataGrid-footerContainer': {
+                borderTop: '1px solid #EEF2F7',
+                background: '#FFFFFF',
+              },
 
-              <Typography color="text.secondary">
-                Administra roles, accesos y estado de usuarios.
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box className="flex items-center gap-2 flex-wrap">
-            <Chip
-              icon={<SecurityIcon sx={{ fontSize: '16px !important' }} />}
-              label={`${users.length} usuario${users.length === 1 ? '' : 's'}`}
-              sx={{
-                background: '#EEF3FF',
+              '& .MuiTablePagination-root': {
                 color: '#090979',
-                fontWeight: 800,
-                border: '1px solid #DCE5F3',
-              }}
-            />
-
-            <Button
-              variant="contained"
-              startIcon={<PersonAddIcon />}
-              onClick={() => {
-                setForm(initialForm)
-                setModalOpen(true)
-              }}
-              sx={{
-                borderRadius: 3,
-                textTransform: 'none',
-                fontWeight: 800,
-                px: 3,
-                background:
-                  'linear-gradient(135deg, #090979 0%, #1D4ED8 100%)',
-                boxShadow: '0 10px 25px rgba(9,9,121,0.18)',
-                '&:hover': {
-                  background:
-                    'linear-gradient(135deg, #070760 0%, #1E40AF 100%)',
-                },
-              }}
-            >
-              Nuevo usuario
-            </Button>
-          </Box>
-        </Box>
-      </Paper>
-
-      <Paper
-        elevation={0}
-        sx={{
-          borderRadius: 4,
-          border: '1px solid #DCE5F3',
-          overflow: 'hidden',
-          background: '#FFFFFF',
-          boxShadow: '0 12px 35px rgba(9, 9, 121, 0.06)',
-        }}
-      >
-       <DataGrid
-  rows={users}
-  columns={columns}
-  getRowId={(row) => row.uid}
-  loading={loading}
-  autoHeight
-  rowHeight={92}
-  columnHeaderHeight={70}
-  disableRowSelectionOnClick
-  pageSizeOptions={[5, 10, 25]}
-  initialState={{
-    pagination: {
-      paginationModel: {
-        pageSize: 5,
-        page: 0,
-      },
-    },
-  }}
-  sx={{
-    border: 0,
-
-    '& .MuiDataGrid-columnHeaders': {
-      backgroundColor: '#F8FAFF',
-      color: '#090979',
-      fontWeight: 900,
-      borderBottom: '1px solid #DCE5F3',
-      minHeight: '70px !important',
-    },
-
-    '& .MuiDataGrid-columnHeaderTitle': {
-      fontWeight: 900,
-      fontSize: '15px',
-    },
-
-    '& .MuiDataGrid-row': {
-      minHeight: '92px !important',
-      maxHeight: '92px !important',
-
-      '&:hover': {
-        backgroundColor: '#F8FAFF',
-      },
-    },
-
-    '& .MuiDataGrid-cell': {
-      borderBottom: '1px solid #EEF2F7',
-      display: 'flex',
-      alignItems: 'center',
-      fontSize: '15px',
-    },
-
-    '& .MuiDataGrid-footerContainer': {
-      borderTop: '1px solid #EEF2F7',
-      background: '#FFFFFF',
-    },
-
-    '& .MuiTablePagination-root': {
-      color: '#090979',
-      fontWeight: 700,
-    },
-  }}
-/>
-      </Paper>
+                fontWeight: 700,
+              },
+            }}
+          />
+        </Paper>
+      </motion.div>
 
       <Dialog
         open={modalOpen}
@@ -491,18 +585,32 @@ export default function UsersPage() {
         maxWidth="sm"
         PaperProps={{
           sx: {
-            borderRadius: 4,
+            borderRadius: 5,
+            overflow: 'hidden',
           },
         }}
       >
         <DialogTitle
-          fontWeight="900"
-          color="#090979"
           sx={{
             borderBottom: '1px solid #DCE5F3',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 100%)',
           }}
         >
-          Nuevo usuario
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Avatar sx={{ bgcolor: '#090979', fontWeight: 900 }}>
+              <PersonAddIcon />
+            </Avatar>
+
+            <Box>
+              <Typography fontWeight="900" color="#090979">
+                Nuevo usuario
+              </Typography>
+
+              <Typography variant="body2" color="text.secondary">
+                Crea un acceso para la plataforma.
+              </Typography>
+            </Box>
+          </Box>
         </DialogTitle>
 
         <DialogContent>
@@ -517,6 +625,14 @@ export default function UsersPage() {
                   name: event.target.value,
                 })
               }
+              InputProps={{
+                startAdornment: <BadgeIcon sx={{ mr: 1, color: '#090979' }} />,
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 3,
+                },
+              }}
             />
 
             <TextField
@@ -529,6 +645,14 @@ export default function UsersPage() {
                   email: event.target.value,
                 })
               }
+              InputProps={{
+                startAdornment: <EmailIcon sx={{ mr: 1, color: '#090979' }} />,
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 3,
+                },
+              }}
             />
 
             <TextField
@@ -543,6 +667,14 @@ export default function UsersPage() {
                   password: event.target.value,
                 })
               }
+              InputProps={{
+                startAdornment: <LockIcon sx={{ mr: 1, color: '#090979' }} />,
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 3,
+                },
+              }}
             />
 
             <TextField
@@ -556,6 +688,11 @@ export default function UsersPage() {
                   role: event.target.value as SystemUser['role'],
                 })
               }
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 3,
+                },
+              }}
             >
               <MenuItem value={UserRole.ADMIN}>ADMIN</MenuItem>
               <MenuItem value={UserRole.LECTOR}>LECTOR</MenuItem>
@@ -570,7 +707,9 @@ export default function UsersPage() {
             disabled={saving}
             sx={{
               textTransform: 'none',
-              fontWeight: 700,
+              fontWeight: 800,
+              color: '#090979',
+              borderRadius: 3,
             }}
           >
             Cancelar
@@ -583,7 +722,8 @@ export default function UsersPage() {
             sx={{
               borderRadius: 3,
               textTransform: 'none',
-              fontWeight: 800,
+              fontWeight: 900,
+              px: 3,
               background:
                 'linear-gradient(135deg, #090979 0%, #1D4ED8 100%)',
               '&:hover': {

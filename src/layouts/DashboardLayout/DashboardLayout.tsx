@@ -11,6 +11,8 @@ import {
   useNavigate,
 } from 'react-router-dom'
 
+import { motion } from 'framer-motion'
+
 import {
   AppBar,
   Avatar,
@@ -145,7 +147,7 @@ export default function DashboardLayout() {
           UserRole.ROOT,
         ],
       },
-        {
+      {
         label: 'Ver como',
         icon: <VisibilityIcon />,
         path: '/ver-como',
@@ -164,7 +166,6 @@ export default function DashboardLayout() {
           UserRole.LECTOR,
         ],
       },
-    
     ]
 
     return items.filter((item) => {
@@ -188,6 +189,227 @@ export default function DashboardLayout() {
     navigate('/')
   }
 
+  const drawerContent = (
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        background:
+          'linear-gradient(180deg, #FFFFFF 0%, #F8FAFF 100%)',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <Box
+        component={motion.div}
+        animate={{
+          scale: [1, 1.08, 1],
+          opacity: [0.45, 0.75, 0.45],
+        }}
+        transition={{
+          duration: 5,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+        sx={{
+          position: 'absolute',
+          width: 220,
+          height: 220,
+          borderRadius: '50%',
+          top: -80,
+          right: -95,
+          background:
+            'radial-gradient(circle, rgba(9,9,121,0.16) 0%, rgba(9,9,121,0) 70%)',
+        }}
+      />
+
+      <Box sx={{ position: 'relative', zIndex: 1, p: 3 }}>
+        <Box
+          component={motion.img}
+          src={logo}
+          alt="Optimización Corporativa"
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
+          sx={{
+            width: '100%',
+            maxWidth: 220,
+            objectFit: 'contain',
+            display: 'block',
+            mx: 'auto',
+            mb: 3,
+            filter: 'drop-shadow(0 10px 16px rgba(9,9,121,0.12))',
+          }}
+        />
+
+        <Box
+          component={motion.div}
+          initial={{ opacity: 0, x: -18 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.45, delay: 0.1 }}
+          sx={{
+            p: 2,
+            borderRadius: 4,
+            background: '#EEF3FF',
+            border: '1px solid #DCE5F3',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.7,
+            boxShadow: '0 14px 34px rgba(9,9,121,0.08)',
+          }}
+        >
+          <Avatar
+            sx={{
+              width: 52,
+              height: 52,
+              bgcolor: '#090979',
+              color: '#FFFFFF',
+              fontWeight: 900,
+              fontSize: 20,
+              flexShrink: 0,
+            }}
+          >
+            {user?.name?.charAt(0)?.toUpperCase() ?? 'U'}
+          </Avatar>
+
+          <Box sx={{ minWidth: 0 }}>
+            <Typography
+              fontWeight="900"
+              color="#090979"
+              noWrap
+              sx={{ lineHeight: 1.2 }}
+            >
+              {user?.name}
+            </Typography>
+
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              noWrap
+              sx={{ lineHeight: 1.3 }}
+            >
+              {user?.email}
+            </Typography>
+
+            <Chip
+              label={effectiveRole ?? 'Sin rol'}
+              size="small"
+              sx={{
+                mt: 1,
+                height: 24,
+                fontWeight: 800,
+                color: '#090979',
+                background: '#FFFFFF',
+                border: '1px solid #DCE5F3',
+              }}
+            />
+          </Box>
+        </Box>
+      </Box>
+
+      <Divider />
+
+      <List
+        sx={{
+          px: 2,
+          py: 2,
+          flexGrow: 1,
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
+        {menuItems.map((item, index) => {
+          const active = location.pathname === item.path
+
+          return (
+            <Box
+              key={item.path}
+              component={motion.div}
+              initial={{ opacity: 0, x: -18 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{
+                duration: 0.35,
+                delay: index * 0.06,
+                ease: 'easeOut',
+              }}
+            >
+              <ListItemButton
+                onClick={() => handleNavigate(item.path)}
+                sx={{
+                  mb: 1,
+                  borderRadius: 3,
+                  minHeight: 54,
+                  color: active ? '#FFFFFF' : '#090979',
+                  background: active
+                    ? 'linear-gradient(135deg, #090979 0%, #1D4ED8 100%)'
+                    : 'transparent',
+                  boxShadow: active
+                    ? '0 12px 24px rgba(9,9,121,0.18)'
+                    : 'none',
+                  transition: 'all 0.25s ease',
+                  '&:hover': {
+                    background: active
+                      ? 'linear-gradient(135deg, #070760 0%, #1E40AF 100%)'
+                      : '#EEF3FF',
+                    transform: 'translateX(5px)',
+                  },
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 42,
+                    color: active ? '#FFFFFF' : '#090979',
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+
+                <ListItemText
+                  primary={item.label}
+                  primaryTypographyProps={{
+                    fontWeight: active ? 900 : 800,
+                  }}
+                />
+              </ListItemButton>
+            </Box>
+          )
+        })}
+      </List>
+
+      <Box
+        sx={{
+          p: 2,
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
+        <Button
+          fullWidth
+          startIcon={<LogoutIcon />}
+          onClick={handleLogout}
+          sx={{
+            height: 52,
+            borderRadius: 3,
+            textTransform: 'none',
+            fontWeight: 900,
+            color: '#B42318',
+            background: '#FDECEC',
+            border: '1px solid #F3C7C7',
+            boxShadow: '0 10px 22px rgba(180,35,24,0.08)',
+            '&:hover': {
+              background: '#FBE1E1',
+              transform: 'translateY(-2px)',
+              boxShadow: '0 14px 30px rgba(180,35,24,0.13)',
+            },
+          }}
+        >
+          Cerrar sesión
+        </Button>
+      </Box>
+    </Box>
+  )
+
   return (
     <Box
       sx={{
@@ -200,7 +422,8 @@ export default function DashboardLayout() {
         position="sticky"
         elevation={0}
         sx={{
-          background: '#FFFFFF',
+          background: 'rgba(255,255,255,0.9)',
+          backdropFilter: 'blur(18px)',
           borderBottom: '1px solid #DCE5F3',
           color: '#090979',
         }}
@@ -214,11 +437,16 @@ export default function DashboardLayout() {
             },
           }}
         >
-          <Box className="flex items-center gap-4">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <IconButton
               onClick={() => setOpen(true)}
               sx={{
                 color: '#090979',
+                background: '#EEF3FF',
+                border: '1px solid #DCE5F3',
+                '&:hover': {
+                  background: '#E1EAFE',
+                },
               }}
             >
               <MenuIcon />
@@ -237,206 +465,93 @@ export default function DashboardLayout() {
 
           <Box sx={{ flexGrow: 1 }} />
 
-          <Box className="hidden md:flex items-center gap-4">
-            <Box
+          <Box
+            sx={{
+              display: {
+                xs: 'none',
+                md: 'flex',
+              },
+              alignItems: 'center',
+              gap: 2,
+              px: 2,
+              py: 1,
+              borderRadius: 4,
+              background: '#EEF3FF',
+              border: '1px solid #DCE5F3',
+            }}
+          >
+            <Avatar
               sx={{
-                textAlign: 'right',
+                width: 42,
+                height: 42,
+                bgcolor: '#090979',
+                fontWeight: 900,
               }}
             >
+              {user?.name?.charAt(0)?.toUpperCase() ?? 'U'}
+            </Avatar>
+
+            <Box>
               <Typography
-                fontWeight="800"
-                fontSize={14}
+                fontWeight="900"
                 color="#090979"
+                lineHeight={1.1}
               >
                 {user?.name}
               </Typography>
 
               <Typography
-                fontSize={12}
-                color="#64748B"
+                variant="caption"
+                color="text.secondary"
+                fontWeight={700}
               >
-                {previewRole
-                  ? `Vista: ${previewRole}`
-                  : user?.role}
+                {effectiveRole}
               </Typography>
             </Box>
-
-            <Avatar
-              sx={{
-                bgcolor: '#090979',
-                width: 42,
-                height: 42,
-                fontWeight: 700,
-              }}
-            >
-              {user?.name?.charAt(0)}
-            </Avatar>
-
-            <Button
-              variant="contained"
-              startIcon={<LogoutIcon />}
-              onClick={handleLogout}
-              sx={{
-                borderRadius: 3,
-                textTransform: 'none',
-                background:
-                  'linear-gradient(135deg, #090979 0%, #1D4ED8 100%)',
-                px: 3,
-                py: 1.1,
-                fontWeight: 700,
-                boxShadow:
-                  '0 10px 25px rgba(9,9,121,0.18)',
-                '&:hover': {
-                  background:
-                    'linear-gradient(135deg, #070760 0%, #1E40AF 100%)',
-                },
-              }}
-            >
-              Salir
-            </Button>
           </Box>
         </Toolbar>
       </AppBar>
 
       <Drawer
-        anchor="left"
         open={open}
         onClose={() => setOpen(false)}
-      >
-        <Box
-          sx={{
+        PaperProps={{
+          sx: {
             width: drawerWidth,
-            height: '100%',
-            background:
-              'linear-gradient(180deg, #FFFFFF 0%, #F8FAFF 100%)',
-          }}
-        >
-          <Box sx={{ p: 3 }}>
-            <Box
-              component="img"
-              src={logo}
-              alt="Logo"
-              sx={{
-                width: '100%',
-                maxWidth: 220,
-                objectFit: 'contain',
-                mb: 3,
-              }}
-            />
-
-            <Divider />
-
-            <Box
-              className="flex items-center gap-3"
-              sx={{
-                mt: 3,
-              }}
-            >
-              <Avatar
-                sx={{
-                  bgcolor: '#090979',
-                  width: 52,
-                  height: 52,
-                  fontWeight: 800,
-                }}
-              >
-                {user?.name?.charAt(0)}
-              </Avatar>
-
-              <Box>
-                <Typography
-                  fontWeight="800"
-                  color="#090979"
-                >
-                  {user?.name}
-                </Typography>
-
-                <Chip
-                  label={
-                    previewRole
-                      ? `Vista: ${previewRole}`
-                      : user?.role
-                  }
-                  size="small"
-                  sx={{
-                    mt: 0.5,
-                    background: '#EEF3FF',
-                    color: '#090979',
-                    fontWeight: 700,
-                  }}
-                />
-              </Box>
-            </Box>
-          </Box>
-
-          <List
-            sx={{
-              px: 2,
-              mt: 1,
-            }}
-          >
-            {menuItems.map((item) => {
-              const active =
-                location.pathname === item.path
-
-              return (
-                <ListItemButton
-                  key={item.path}
-                  onClick={() =>
-                    handleNavigate(item.path)
-                  }
-                  sx={{
-                    mb: 1,
-                    borderRadius: 3,
-                    py: 1.4,
-                    background: active
-                      ? 'linear-gradient(135deg, #090979 0%, #1D4ED8 100%)'
-                      : 'transparent',
-                    color: active
-                      ? '#FFFFFF'
-                      : '#090979',
-                    '&:hover': {
-                      background: active
-                        ? 'linear-gradient(135deg, #090979 0%, #1D4ED8 100%)'
-                        : '#EEF3FF',
-                    },
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{
-                      color: active
-                        ? '#FFFFFF'
-                        : '#090979',
-                    }}
-                  >
-                    {item.icon}
-                  </ListItemIcon>
-
-                  <ListItemText
-                    primary={item.label}
-                    primaryTypographyProps={{
-                      fontWeight: 700,
-                    }}
-                  />
-                </ListItemButton>
-              )
-            })}
-          </List>
-        </Box>
+            borderRight: '1px solid #DCE5F3',
+            borderTopRightRadius: {
+              xs: 0,
+              sm: 24,
+            },
+            borderBottomRightRadius: {
+              xs: 0,
+              sm: 24,
+            },
+            overflow: 'hidden',
+          },
+        }}
+      >
+        {drawerContent}
       </Drawer>
 
       <Box
+        component="main"
         sx={{
           p: {
             xs: 2,
             md: 4,
           },
-          pb: 8,
-          minHeight: 'calc(100vh - 88px)',
-          overflow: 'visible',
+          maxWidth: 1500,
+          mx: 'auto',
         }}
       >
-        <Outlet />
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
+        >
+          <Outlet />
+        </motion.div>
       </Box>
     </Box>
   )
